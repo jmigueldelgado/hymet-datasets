@@ -1,0 +1,13 @@
+#' Get station metadata from local downloaded file with all automatic stations
+#' @import readr
+#' @import dplyr
+#' @export
+get_stations_file <- function()
+{
+    tbl <- read_csv("./dados/rede_Meteorologica.csv",skip=4,na=c("",NA,"-")) %>% rename(altitude=`ALTITUDE (M)`,latitude=`LATITUDE (ºN)`,longitude=`LONGITUDE (ºW)`)
+    ids <- read_csv("./dados/ids.tbl",col_names=F)
+    colnames(ids) <- c("ref","Nome","CÓDIGO")
+    tbl <- inner_join(tbl,ids)
+    return(tbl)
+}
+
