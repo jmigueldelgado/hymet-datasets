@@ -1,0 +1,7 @@
+
+#' gather upstream affluent, only one strahler order can be given, should loop through  strahler in main loop
+#' @return subbasin
+#' @param subbasin
+#' @param network.subset
+#' @export
+getDailyTemperature <- function(network.subset, subbasin)
