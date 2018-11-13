@@ -1,43 +1,152 @@
+#' download ncdf
+#' @param request is a data_frame obtained from def_request
+#' @export
+download_nc <- function(request)
+{
+    fname <- paste0(request$fname[1],'.',request$year[1],'.nc')
+    fpath <- paste0(request$prefix[1],request$fname[1],'.',request$year[1],'.nc')
+    if(!file.exists(fname))
+    {
+        cat("wget ",fpath)
+        system(paste0("wget ",fpath))
+    }
 
+    if(file.exists(fname))
+    {
+        cat("downloaded ",fname)
+    } else
+    {
+        cat("problems downloading from NCEP server")
+    }
+}
 
-
-#' get reanalysis data from NCEP
-#' @param pt an sf point object in lat long
-#' @param lubri a lubridate object or a list of two objects defining the time domain or the query
-#' @importFrom lubridate year
+#' get ncdf from NCEP
+#' @param request_all is a data_frame obtained from def_request
+#' @import lubridate
 #' @import dplyr
 #' @import ncdf4
 #' @export
-get_reanalysis <- function(pt,prefix,fname,varname)
+get_nc <- function(request_all)
 {
-    if(!file.exists(fname))
+    request <- distinct(request_all,varname,year,.keep_all=TRUE)
+    for(i in seq(1,nrow(request)))
     {
-        system(paste0("wget ",prefix,fname))
+        download_nc(request[i,])
     }
-    
-    if(file.exists(fname))
-    {
-        
-        nc=nc_open(fname)
-        tt=ncvar_get(nc,varid="time")
-        tformat= ymd_hms("1800-01-01 00:00:00")+hours(tt)
-        
-        lat=ncvar_get(nc,varid="lat")
-        lon=ncvar_get(nc,varid="lon")
-        gr=expand.grid(lon,lat)
-        colnames(gr) <- c("lon","lat")
-        grsf <- st_as_sf(gr,coords=c(1,2)) %>% st_set_crs(.,4326)
-        ncpt=grsf[which.min(st_distance(grsf,pt)),]
-        nlon=which(lon==st_coordinates(ncpt)[1])
-        nlat=which(lat==st_coordinates(ncpt)[2])
-                
-        x <- ncvar_get(nc,varname,start=c(nlon,nlat,1),count=c(1,1,-1))
-        df <- data.frame(time=tformat,var=varname,value=x)
-    } else {cat("problems downloading from NCEP server")}
-    
-      
-nc_close(nc)
+}
+#' convert ncdf into data frame and save
+#' @export
+nc2rds <- function(request_all)
+{
+    library(scraping)
+    coor <- data.frame(lon=13.40,lat=52.52)
+    var <- c('temperature','relative humidity')
+    years <- c('2000','2001')
 
-return(df)
+    request_all <- def_request(coor,var,years)
+
+    v='air'
+    i=1
+    for(v in distinct(as_data_frame(request_all),varname) %>% pull(varname))
+    {
+        request <- request_all %>%
+            filter(varname==v)
+
+        DF <- list()
+        for(i in seq(1,nrow(request)))
+        {
+            fname <- paste0(request$fname[i],'.',request$year[i],'.nc')
+            if(file.exists(fname))
+            {
+                nc=nc_open(fname)
+                tt=ncvar_get(nc,varid="time")
+                tformat= ymd_hms("1800-01-01 00:00:00")+hours(tt)
+
+                lat=ncvar_get(nc,varid="lat")
+                lon=ncvar_get(nc,varid="lon")
+                gr=expand.grid(lon,lat)
+                colnames(gr) <- c("lon","lat")
+                grsf <- st_as_sf(gr,coords=c(1,2)) %>% st_set_crs(.,4326)
+                ncpt=grsf[which.min(st_distance(grsf,request[i,])),]
+                nlon=which(lon==st_coordinates(ncpt)[1])
+                nlat=which(lat==st_coordinates(ncpt)[2])
+
+                var=lookup_ncep(v) %>% pull(variable)
+                x <- ncvar_get(nc,v,start=c(nlon,nlat,1),count=c(1,1,-1))
+                DF[[i]] <- data.frame(time=tformat,var=var,value=x,lon=lon[nlon],lat=lat[nlat])
+                nc_close(nc)
+            } else {cat(fname," not found.")}
+            df <- do.call("rbind",DF)
+            saveRDS(df,paste0(v,".rds"))
+        }
+    }
 }
 
+
+#' lookup variable names in NCEP
+#' @param var a meteorological variable name as a string such as 'temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'
+#' @import dplyr
+#' @export
+lookup_var <- function(var)
+{
+    lookup <- data_frame(variable=c('temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'),varname=c('air','rhum','uwnd','vwnd','gflux','dswrf','prate')) %>%
+        filter(variable %in% var)
+    return(lookup)
+}
+
+#' lookup NCEP variable names
+#' @param ncepname ncep variable name as a string such as 'air','rhum'
+#' @import dplyr
+#' @export
+lookup_ncep <- function(ncepname)
+{
+    lookup <- data_frame(variable=c('temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'),varname=c('air','rhum','uwnd','vwnd','gflux','dswrf','prate')) %>%
+        filter(varname %in% ncepname)
+    return(lookup)
+}
+
+#' define request
+#' @import dplyr
+#' @import sf
+#' @importFrom tidyr crossing
+#' @return request
+#' @export
+def_request <- function(coor,var,years)
+{
+
+    lookup <- lookup_var(var) %>%
+        left_join(.,getPrefix())
+
+    pt <- data.frame(longitude=coor[,1],latitude=coor[,2]) %>%
+        st_as_sf(.,coords=c(1,2)) %>%
+        st_set_crs(.,4326)
+
+    y <- data.frame(year=years)
+
+    request <- crossing(y,lookup,pt) %>% st_as_sf
+
+    return(request)
+}
+
+#' get prefix
+#' importFrom tibble data_frame
+#' @export
+getPrefix <- function()
+{
+    prefix=data_frame(varname=c('air','rhum','uwnd','vwnd','prate','gflux','dswrf'),
+               prefix=c('ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/',
+                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
+                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
+                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
+                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
+                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
+                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/'),
+               fname=c('air.2m.gauss',
+                       'rhum.sig995',
+                       'uwnd.sig995',
+                       'vwnd.sig995',
+                       'prate.sfc.gauss',
+                       'gflux.sfc.gauss',
+                       'dswrf.sfc.gauss'))
+    return(prefix)
+}
