@@ -19,6 +19,17 @@ nc2rds(request)
 
 ```
 
+You can choose among these variables (make sure you get the spelling right!):
+
+- 'temperature'
+- 'relative humidity'
+- 'u wind'
+- 'v wind'
+- 'soil heat flux'
+- 'net radiation'
+- 'precipitation rate'
+
+
 Please have a look at the [vignette](vignettes/get_ncep_reanalysis.html) in a browser for more details.
 
 ## pluviopt
