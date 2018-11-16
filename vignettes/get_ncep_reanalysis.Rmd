@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 ### Define request
 ```{r, results='asis'}
 library(scraping)
-coor <- data.frame(lon=13.40,lat=52.52)
+coor <- data.frame(lon=c(13.40,13.91),lat=c(52.52,52.90))
 var <- c('temperature','relative humidity')
 years <- c('2000','2001')
 
