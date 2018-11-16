@@ -22,9 +22,7 @@ download_nc <- function(request)
 
 #' get ncdf from NCEP
 #' @param request_all is a data_frame obtained from def_request
-#' @import lubridate
-#' @import dplyr
-#' @import ncdf4
+#' @importFrom dplyr distinct
 #' @export
 get_nc <- function(request_all)
 {
@@ -35,10 +33,13 @@ get_nc <- function(request_all)
     }
 }
 #' convert ncdf into data frame and save
+#' @importFrom lubridate ymd_hms, hours
+#' @import dplyr
+#' @import ncdf4
+#' @importFrom sf st_coordinates, st_as_sf, st_set_crs
 #' @export
 nc2rds <- function(request_all)
 {
-    library(scraping)
     coor <- data.frame(lon=13.40,lat=52.52)
     var <- c('temperature','relative humidity')
     years <- c('2000','2001')
@@ -85,7 +86,7 @@ nc2rds <- function(request_all)
 
 #' lookup variable names in NCEP
 #' @param var a meteorological variable name as a string such as 'temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'
-#' @import dplyr
+#' @importFrom dplyr data_frame, filter
 #' @export
 lookup_var <- function(var)
 {
@@ -96,7 +97,7 @@ lookup_var <- function(var)
 
 #' lookup NCEP variable names
 #' @param ncepname ncep variable name as a string such as 'air','rhum'
-#' @import dplyr
+#' @importFrom dplyr data_frame, filter
 #' @export
 lookup_ncep <- function(ncepname)
 {
@@ -106,8 +107,8 @@ lookup_ncep <- function(ncepname)
 }
 
 #' define request
-#' @import dplyr
-#' @import sf
+#' @importFrom dplyr left_join
+#' @importFrom sf st_as_sf, st_set_crs
 #' @importFrom tidyr crossing
 #' @return request
 #' @export
