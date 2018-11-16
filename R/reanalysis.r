@@ -33,10 +33,10 @@ get_nc <- function(request_all)
     }
 }
 #' convert ncdf into data frame and save
-#' @importFrom lubridate ymd_hms, hours
+#' @importFrom lubridate ymd_hms hours
 #' @import dplyr
 #' @import ncdf4
-#' @importFrom sf st_coordinates, st_as_sf, st_set_crs
+#' @importFrom sf st_coordinates st_as_sf st_set_crs
 #' @export
 nc2rds <- function(request_all)
 {
@@ -110,7 +110,7 @@ lookup_ncep <- function(ncepname)
 
 #' define request
 #' @importFrom dplyr left_join
-#' @importFrom sf st_as_sf, st_set_crs
+#' @importFrom sf st_as_sf st_set_crs
 #' @importFrom tidyr crossing
 #' @return request
 #' @export
