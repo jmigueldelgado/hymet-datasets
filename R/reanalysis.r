@@ -86,7 +86,8 @@ nc2rds <- function(request_all)
 
 #' lookup variable names in NCEP
 #' @param var a meteorological variable name as a string such as 'temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'
-#' @importFrom dplyr data_frame, filter
+#' @importFrom dplyr filter
+#' @importFrom tibble data_frame
 #' @export
 lookup_var <- function(var)
 {
@@ -97,7 +98,8 @@ lookup_var <- function(var)
 
 #' lookup NCEP variable names
 #' @param ncepname ncep variable name as a string such as 'air','rhum'
-#' @importFrom dplyr data_frame, filter
+#' @importFrom dplyr filter
+#' @importFrom tibble data_frame
 #' @export
 lookup_ncep <- function(ncepname)
 {
