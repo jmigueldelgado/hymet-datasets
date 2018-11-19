@@ -23,11 +23,12 @@ knitr::opts_chunk$set(
 ```{r, results='asis'}
 library(scraping)
 coor <- data.frame(lon=c(13.40,13.91),lat=c(52.52,52.90))
-var <- c('temperature','relative humidity')
-years <- c('2000','2001')
-
+var <- c('temperature')
+years <- c('2000')
+setwd('/home/delgado/proj/scraping')
 request <- def_request(coor,var,years)
 knitr::kable(request)
+
 
 ```
 

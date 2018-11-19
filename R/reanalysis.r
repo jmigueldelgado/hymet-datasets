@@ -13,10 +13,10 @@ download_nc <- function(request)
 
     if(file.exists(fname))
     {
-        cat("downloaded ",fname)
+        cat(" downloaded ",fname,"\n")
     } else
     {
-        cat("problems downloading from NCEP server")
+        cat("problems downloading from NCEP server\n")
     }
 }
 
@@ -36,13 +36,14 @@ get_nc <- function(request_all)
 #' @importFrom lubridate ymd_hms hours
 #' @import dplyr
 #' @import ncdf4
+#' @import lwgeom
 #' @importFrom sf st_coordinates st_as_sf st_set_crs st_distance
 #' @export
 nc2rds <- function(request_all)
 {
-    coor <- data.frame(lon=13.40,lat=52.52)
-    var <- c('temperature','relative humidity')
-    years <- c('2000','2001')
+    # coor <- data.frame(lon=13.40,lat=52.52)
+    # var <- c('temperature','relative humidity')
+    # years <- c('2000','2001')
 
     request_all <- def_request(coor,var,years)
 
