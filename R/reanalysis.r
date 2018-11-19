@@ -36,7 +36,7 @@ get_nc <- function(request_all)
 #' @importFrom lubridate ymd_hms hours
 #' @import dplyr
 #' @import ncdf4
-#' @importFrom sf st_coordinates st_as_sf st_set_crs
+#' @importFrom sf st_coordinates st_as_sf st_set_crs st_distance
 #' @export
 nc2rds <- function(request_all)
 {
