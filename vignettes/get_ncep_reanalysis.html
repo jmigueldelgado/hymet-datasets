@@ -12,7 +12,7 @@
 
 <meta name="author" content="JM Delgado" />
 
-<meta name="date" content="2018-11-13" />
+<meta name="date" content="2018-11-21" />
 
 <title>NCEP example</title>
 
@@ -70,22 +70,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">NCEP example</h1>
 <h4 class="author"><em>JM Delgado</em></h4>
-<h4 class="date"><em>2018-11-13</em></h4>
+<h4 class="date"><em>2018-11-21</em></h4>
 
 
 
 <div id="define-request-download-and-convert-from-ncdf-to-data-frame-and-save" class="section level2">
 <h2>Define request, download and convert from ncdf to data frame and save</h2>
+<p><code>var</code> should be a meteorological variable name as a string such as <code>temperature</code>,<code>relative humidity</code>,<code>u wind</code>,<code>v wind</code>,<code>soil heat flux</code>,<code>net radiation</code> or <code>precipitation rate</code>.</p>
 <div id="define-request" class="section level3">
 <h3>Define request</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(scraping)
-coor &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">lon=</span><span class="fl">13.40</span>,<span class="dt">lat=</span><span class="fl">52.52</span>)
-var &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'temperature'</span>,<span class="st">'relative humidity'</span>)
-years &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'2000'</span>,<span class="st">'2001'</span>)
-
+coor &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">lon=</span><span class="kw">c</span>(<span class="fl">13.40</span>,<span class="fl">13.91</span>),<span class="dt">lat=</span><span class="kw">c</span>(<span class="fl">52.52</span>,<span class="fl">52.90</span>))
+var &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'temperature'</span>)
+years &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'2000'</span>)
+<span class="kw">setwd</span>(<span class="st">'/home/delgado/proj/scraping'</span>)
 request &lt;-<span class="st"> </span><span class="kw">def_request</span>(coor,var,years)
 <span class="co">#&gt; Joining, by = &quot;varname&quot;</span>
-knitr<span class="op">::</span><span class="kw">kable</span>(request)</code></pre></div>
+knitr::<span class="kw">kable</span>(request)</code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -104,31 +105,15 @@ knitr<span class="op">::</span><span class="kw">kable</span>(request)</code></pr
 <td align="left">air</td>
 <td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/</a></td>
 <td align="left">air.2m.gauss</td>
-<td align="left">c(13.4, 52.52)</td>
+<td align="left">13.40, 52.52</td>
 </tr>
 <tr class="even">
 <td align="left">2000</td>
-<td align="left">relative humidity</td>
-<td align="left">rhum</td>
-<td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/</a></td>
-<td align="left">rhum.sig995</td>
-<td align="left">c(13.4, 52.52)</td>
-</tr>
-<tr class="odd">
-<td align="left">2001</td>
 <td align="left">temperature</td>
 <td align="left">air</td>
 <td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/</a></td>
 <td align="left">air.2m.gauss</td>
-<td align="left">c(13.4, 52.52)</td>
-</tr>
-<tr class="even">
-<td align="left">2001</td>
-<td align="left">relative humidity</td>
-<td align="left">rhum</td>
-<td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/</a></td>
-<td align="left">rhum.sig995</td>
-<td align="left">c(13.4, 52.52)</td>
+<td align="left">13.91, 52.90</td>
 </tr>
 </tbody>
 </table>
@@ -147,15 +132,28 @@ knitr<span class="op">::</span><span class="kw">kable</span>(request)</code></pr
 <h3>Load air temperature</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(scraping)
 <span class="kw">library</span>(dplyr)
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Attaching package: 'dplyr'</span>
+<span class="co">#&gt; The following objects are masked from 'package:stats':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     filter, lag</span>
+<span class="co">#&gt; The following objects are masked from 'package:base':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     intersect, setdiff, setequal, union</span>
 <span class="kw">library</span>(lubridate)
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Attaching package: 'lubridate'</span>
+<span class="co">#&gt; The following object is masked from 'package:base':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     date</span>
 
-var=<span class="kw">lookup_var</span>(<span class="st">'temperature'</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(varname)
+var=<span class="kw">lookup_var</span>(<span class="st">'temperature'</span>) %&gt;%<span class="st"> </span><span class="kw">pull</span>(varname)
 
 myproj=<span class="st">'/home/delgado/proj/scraping/'</span>
 
 df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,var,<span class="st">'.rds'</span>))
 
-<span class="kw">head</span>(df1) <span class="op">%&gt;%</span><span class="st"> </span>knitr<span class="op">::</span><span class="kw">kable</span>()</code></pre></div>
+<span class="kw">head</span>(df1) %&gt;%<span class="st"> </span>knitr::<span class="kw">kable</span>()</code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -212,11 +210,11 @@ df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,var,<s
 </tbody>
 </table>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-df1 <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">group_by</span>(<span class="dt">day=</span><span class="kw">floor_date</span>(time,<span class="st">&quot;day&quot;</span>)) <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">daily_max=</span><span class="kw">max</span>(value),<span class="dt">daily_min=</span><span class="kw">min</span>(value),<span class="dt">daily_mean=</span><span class="kw">mean</span>(value),<span class="dt">var=</span><span class="kw">first</span>(var)) <span class="op">%&gt;%</span><span class="st">  </span>
-<span class="st">    </span><span class="kw">head</span>() <span class="op">%&gt;%</span>
-<span class="st">    </span>knitr<span class="op">::</span><span class="kw">kable</span>()</code></pre></div>
+df1 %&gt;%
+<span class="st">    </span><span class="kw">group_by</span>(<span class="dt">day=</span><span class="kw">floor_date</span>(time,<span class="st">&quot;day&quot;</span>)) %&gt;%
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">daily_max=</span><span class="kw">max</span>(value),<span class="dt">daily_min=</span><span class="kw">min</span>(value),<span class="dt">daily_mean=</span><span class="kw">mean</span>(value),<span class="dt">var=</span><span class="kw">first</span>(var)) %&gt;%<span class="st">  </span>
+<span class="st">    </span><span class="kw">head</span>() %&gt;%
+<span class="st">    </span>knitr::<span class="kw">kable</span>()</code></pre></div>
 <table>
 <thead>
 <tr class="header">

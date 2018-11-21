@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 
 
 ## Define request, download and convert from ncdf to data frame and save
+`var` should be a meteorological variable name as a string such as `temperature`,`relative humidity`,`u wind`,`v wind`,`soil heat flux`,`net radiation` or `precipitation rate`.
 
 ### Define request
 ```{r, results='asis'}
