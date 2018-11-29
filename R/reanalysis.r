@@ -1,5 +1,6 @@
 #' download ncdf
 #' @param request is a data_frame obtained from def_request
+#' @importFrom curl curl_download
 #' @export
 download_nc <- function(request)
 {
@@ -7,8 +8,8 @@ download_nc <- function(request)
     fpath <- paste0(request$prefix[1],request$fname[1],'.',request$year[1],'.nc')
     if(!file.exists(fname))
     {
-        cat("wget ",fpath)
-        system(paste0("wget ",fpath))
+        cat("wget ",fpath,'\n')
+        curl_download(fpath,file.path(getwd(),fname))
     }
 
     if(file.exists(fname))
