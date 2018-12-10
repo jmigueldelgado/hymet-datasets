@@ -1,30 +1,45 @@
 NCEP example
 ================
 JM Delgado
-2018-11-27
+2018-11-29
 
 Define request, download and convert from ncdf to data frame and save
 ---------------------------------------------------------------------
+
+`var` should be a meteorological variable name as a string such as `temperature`,`relative humidity`,`u wind`,`v wind`,`soil heat flux`,`net radiation` or `precipitation rate`.
 
 ### Define request
 
 ``` r
 library(scraping)
-coor <- data.frame(lon=13.40,lat=52.52)
-var <- c('temperature','relative humidity')
-years <- c('2000','2001')
+```
 
+Insert coordinates as points:
+
+``` r
+coor <- data.frame(lon=c(13.40,13.91),lat=c(52.52,52.90))
+```
+
+...or as left, right, bottom and top extents of your region of interest:
+
+``` r
+coor <- data.frame(l=12,r=14,b=50,t=53)
+```
+
+Choose years and variables
+
+``` r
+var <- c('temperature')
+years <- c('2008')
+setwd('/home/delgado/proj/scraping')
 request <- def_request(coor,var,years)
 #> Joining, by = "varname"
 knitr::kable(request)
 ```
 
-| year | variable          | varname | prefix                                                           | fname        | geometry       |
-|:-----|:------------------|:--------|:-----------------------------------------------------------------|:-------------|:---------------|
-| 2000 | temperature       | air     | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/> | air.2m.gauss | c(13.4, 52.52) |
-| 2000 | relative humidity | rhum    | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/>       | rhum.sig995  | c(13.4, 52.52) |
-| 2001 | temperature       | air     | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/> | air.2m.gauss | c(13.4, 52.52) |
-| 2001 | relative humidity | rhum    | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/>       | rhum.sig995  | c(13.4, 52.52) |
+| year | variable    | varname | prefix                                                           | fname        | geometry                               |
+|:-----|:------------|:--------|:-----------------------------------------------------------------|:-------------|:---------------------------------------|
+| 2008 | temperature | air     | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/> | air.2m.gauss | 12, 14, 14, 12, 12, 50, 50, 53, 53, 50 |
 
 ### Download and convert from ncdf to data frame and save
 
@@ -67,14 +82,14 @@ df1=readRDS(paste0(myproj,var,'.rds'))
 head(df1) %>% knitr::kable()
 ```
 
-| time                | var         |  value|     lon|      lat|
-|:--------------------|:------------|------:|-------:|--------:|
-| 2000-01-01 00:00:00 | temperature |  268.6|  13.125|  52.3799|
-| 2000-01-01 06:00:00 | temperature |  273.0|  13.125|  52.3799|
-| 2000-01-01 12:00:00 | temperature |  274.7|  13.125|  52.3799|
-| 2000-01-01 18:00:00 | temperature |  274.2|  13.125|  52.3799|
-| 2000-01-02 00:00:00 | temperature |  273.1|  13.125|  52.3799|
-| 2000-01-02 06:00:00 | temperature |  274.8|  13.125|  52.3799|
+|     lon|      lat| time                |   value| var         |
+|-------:|--------:|:--------------------|-------:|:------------|
+|  13.125|  52.3799| 2008-01-01 00:00:00 |  271.50| temperature |
+|  15.000|  52.3799| 2008-01-01 00:00:00 |  271.80| temperature |
+|  13.125|  50.4752| 2008-01-01 00:00:00 |  271.00| temperature |
+|  15.000|  50.4752| 2008-01-01 00:00:00 |  271.21| temperature |
+|  13.125|  52.3799| 2008-01-01 06:00:00 |  273.30| temperature |
+|  15.000|  52.3799| 2008-01-01 06:00:00 |  273.71| temperature |
 
 ``` r
 
@@ -87,9 +102,9 @@ df1 %>%
 
 | day        |  daily\_max|  daily\_min|  daily\_mean| var         |
 |:-----------|-----------:|-----------:|------------:|:------------|
-| 2000-01-01 |       274.7|       268.6|      272.625| temperature |
-| 2000-01-02 |       275.2|       273.1|      274.425| temperature |
-| 2000-01-03 |       276.7|       274.4|      275.975| temperature |
-| 2000-01-04 |       277.2|       275.2|      276.500| temperature |
-| 2000-01-05 |       276.5|       272.1|      274.275| temperature |
-| 2000-01-06 |       276.7|       270.9|      274.175| temperature |
+| 2008-01-01 |      273.71|      259.90|     268.7456| temperature |
+| 2008-01-02 |      271.21|      264.40|     267.9656| temperature |
+| 2008-01-03 |      270.00|      264.10|     266.8962| temperature |
+| 2008-01-04 |      273.10|      265.30|     268.9025| temperature |
+| 2008-01-05 |      274.60|      269.71|     272.9637| temperature |
+| 2008-01-06 |      276.80|      272.90|     274.3706| temperature |
