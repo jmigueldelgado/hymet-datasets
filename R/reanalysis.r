@@ -33,6 +33,23 @@ get_nc <- function(request_all)
         download_nc(request[i,])
     }
 }
+
+#' obtain ncdf metadata, inclusing units
+#' @import dplyr
+#' @import ncdf4
+#' @export
+get_nc_meta <- function(request,var)
+{
+  requesti = request %>% filter(variable==var) %>% slice(1)
+  fname <- paste0(requesti$fname[1],'.',requesti$year[1],'.nc')
+  if(file.exists(fname))
+    {
+      nc=nc_open(fname)
+      return(ncatt_get(nc,requesti$varname[1]))
+    } else {cat(fname," not found.")}
+
+}
+
 #' convert ncdf into data frame and save
 #' @importFrom lubridate ymd_hms hours as_datetime
 #' @import dplyr

@@ -42,7 +42,6 @@ setwd('/home/delgado/proj/scraping')
 request <- def_request(coor,var,years)
 knitr::kable(request)
 
-
 ```
 
 ### Download and convert from ncdf to data frame and save
@@ -51,6 +50,8 @@ knitr::kable(request)
 get_nc(request)
 
 nc2rds(request)
+
+get_nc_meta(request,var)
 
 ```
 
