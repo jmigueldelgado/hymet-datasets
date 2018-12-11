@@ -29,7 +29,7 @@ coor <- data.frame(l=12,r=14,b=50,t=53)
 Choose years and variables
 
 ``` r
-var <- c('net radiation')
+var <- c('precipitation rate')
 years <- c('2000','2001')
 setwd('/home/delgado/proj/scraping')
 request <- def_request(coor,var,years)
@@ -37,10 +37,10 @@ request <- def_request(coor,var,years)
 knitr::kable(request)
 ```
 
-| year | variable      | varname | prefix                                                                     | fname           | geometry                               |
-|:-----|:--------------|:--------|:---------------------------------------------------------------------------|:----------------|:---------------------------------------|
-| 2000 | net radiation | dswrf   | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/> | dswrf.sfc.gauss | 12, 14, 14, 12, 12, 50, 50, 53, 53, 50 |
-| 2001 | net radiation | dswrf   | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/> | dswrf.sfc.gauss | 12, 14, 14, 12, 12, 50, 50, 53, 53, 50 |
+| year | variable           | varname | prefix                                                                     | fname           | geometry                               |
+|:-----|:-------------------|:--------|:---------------------------------------------------------------------------|:----------------|:---------------------------------------|
+| 2000 | precipitation rate | prate   | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/> | prate.sfc.gauss | 12, 14, 14, 12, 12, 50, 50, 53, 53, 50 |
+| 2001 | precipitation rate | prate   | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/> | prate.sfc.gauss | 12, 14, 14, 12, 12, 50, 50, 53, 53, 50 |
 
 ### Download and convert from ncdf to data frame and save
 
@@ -59,54 +59,41 @@ Load rds data examples
 ``` r
 library(scraping)
 library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 library(lubridate)
-#> 
-#> Attaching package: 'lubridate'
-#> The following object is masked from 'package:base':
-#> 
-#>     date
 
-var=lookup_var('net radiation') %>% pull(varname)
+varname=lookup_var(var) %>% pull(varname)
 
 myproj='/home/delgado/proj/scraping/'
 
-df1=readRDS(paste0(myproj,var,'.rds'))
+df1=readRDS(paste0(myproj,varname,'.rds'))
 
 head(df1) %>% knitr::kable()
 ```
 
-|     lon|      lat| time       |     value| var           |
-|-------:|--------:|:-----------|---------:|:--------------|
-|  13.125|  52.3799| 2000-01-01 |  37.89990| net radiation |
-|  15.000|  52.3799| 2000-01-01 |  44.89990| net radiation |
-|  13.125|  50.4752| 2000-01-01 |  50.69995| net radiation |
-|  15.000|  50.4752| 2000-01-01 |  59.00000| net radiation |
-|  13.125|  52.3799| 2000-01-02 |  53.50000| net radiation |
-|  15.000|  52.3799| 2000-01-02 |  51.50000| net radiation |
+|     lon|      lat| time       |     value| var                |
+|-------:|--------:|:-----------|---------:|:-------------------|
+|  13.125|  52.3799| 2000-01-01 |  1.17e-05| precipitation rate |
+|  15.000|  52.3799| 2000-01-01 |  1.50e-05| precipitation rate |
+|  13.125|  50.4752| 2000-01-01 |  4.07e-05| precipitation rate |
+|  15.000|  50.4752| 2000-01-01 |  2.22e-05| precipitation rate |
+|  13.125|  52.3799| 2000-01-02 |  1.90e-06| precipitation rate |
+|  15.000|  52.3799| 2000-01-02 |  6.90e-06| precipitation rate |
 
-Compute daily maxima if it applies:
+Compute daily maxima if it applies (for example temperature and relative humidity, not precipitation rate or net radiation, which is given as daily values):
 
 ``` r
 df1 %>%
     group_by(day=floor_date(time,"day")) %>%
-    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),var=first(var)) %>%  
+    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),varname=first(varname)) %>%  
     head() %>%
     knitr::kable()
 ```
 
-| day        |  daily\_max|  daily\_min|  daily\_mean| var           |
-|:-----------|-----------:|-----------:|------------:|:--------------|
-| 2000-01-01 |    59.00000|     37.8999|     48.12494| net radiation |
-| 2000-01-02 |    62.19995|     51.5000|     56.54999| net radiation |
-| 2000-01-03 |    68.19995|     50.8999|     58.49994| net radiation |
-| 2000-01-04 |    62.69995|     46.8999|     54.54993| net radiation |
-| 2000-01-05 |    68.50000|     54.0000|     61.17499| net radiation |
-| 2000-01-06 |    69.69995|     55.5000|     62.54999| net radiation |
+| day        |  daily\_max|  daily\_min|  daily\_mean| varname |
+|:-----------|-----------:|-----------:|------------:|:--------|
+| 2000-01-01 |    4.07e-05|    1.17e-05|     2.24e-05| prate   |
+| 2000-01-02 |    3.17e-05|    1.90e-06|     1.33e-05| prate   |
+| 2000-01-03 |    3.37e-05|    1.00e-07|     1.17e-05| prate   |
+| 2000-01-04 |    6.02e-05|    2.80e-05|     3.73e-05| prate   |
+| 2000-01-05 |    1.92e-05|    1.70e-06|     9.30e-06| prate   |
+| 2000-01-06 |    2.30e-06|    3.00e-07|     8.00e-07| prate   |

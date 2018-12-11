@@ -37,20 +37,20 @@ body {
 <p>...or as left, right, bottom and top extents of your region of interest:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">coor &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">l=</span><span class="dv">12</span>,<span class="dt">r=</span><span class="dv">14</span>,<span class="dt">b=</span><span class="dv">50</span>,<span class="dt">t=</span><span class="dv">53</span>)</code></pre></div>
 <p>Choose years and variables</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">var &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'net radiation'</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">var &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'precipitation rate'</span>)
 years &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'2000'</span>,<span class="st">'2001'</span>)
 <span class="kw">setwd</span>(<span class="st">'/home/delgado/proj/scraping'</span>)
 request &lt;-<span class="st"> </span><span class="kw">def_request</span>(coor,var,years)
 <span class="co">#&gt; Joining, by = &quot;varname&quot;</span>
 knitr::<span class="kw">kable</span>(request)</code></pre></div>
-<table>
+<table style="width:100%;">
 <colgroup>
 <col width="4%"></col>
-<col width="9%"></col>
+<col width="12%"></col>
 <col width="5%"></col>
-<col width="45%"></col>
+<col width="44%"></col>
 <col width="10%"></col>
-<col width="24%"></col>
+<col width="23%"></col>
 </colgroup>
 <thead>
 <tr class="header">
@@ -65,18 +65,18 @@ knitr::<span class="kw">kable</span>(request)</code></pre></div>
 <tbody>
 <tr class="odd">
 <td align="left">2000</td>
-<td align="left">net radiation</td>
-<td align="left">dswrf</td>
+<td align="left">precipitation rate</td>
+<td align="left">prate</td>
 <td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/</a></td>
-<td align="left">dswrf.sfc.gauss</td>
+<td align="left">prate.sfc.gauss</td>
 <td align="left">12, 14, 14, 12, 12, 50, 50, 53, 53, 50</td>
 </tr>
 <tr class="even">
 <td align="left">2001</td>
-<td align="left">net radiation</td>
-<td align="left">dswrf</td>
+<td align="left">precipitation rate</td>
+<td align="left">prate</td>
 <td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/</a></td>
-<td align="left">dswrf.sfc.gauss</td>
+<td align="left">prate.sfc.gauss</td>
 <td align="left">12, 14, 14, 12, 12, 50, 50, 53, 53, 50</td>
 </tr>
 </tbody>
@@ -90,26 +90,13 @@ knitr::<span class="kw">kable</span>(request)</code></pre></div>
 <h3 id="load-air-temperature">Load air temperature</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(scraping)
 <span class="kw">library</span>(dplyr)
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'dplyr'</span>
-<span class="co">#&gt; The following objects are masked from 'package:stats':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     filter, lag</span>
-<span class="co">#&gt; The following objects are masked from 'package:base':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     intersect, setdiff, setequal, union</span>
 <span class="kw">library</span>(lubridate)
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'lubridate'</span>
-<span class="co">#&gt; The following object is masked from 'package:base':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     date</span>
 
-var=<span class="kw">lookup_var</span>(<span class="st">'net radiation'</span>) %&gt;%<span class="st"> </span><span class="kw">pull</span>(varname)
+varname=<span class="kw">lookup_var</span>(var) %&gt;%<span class="st"> </span><span class="kw">pull</span>(varname)
 
 myproj=<span class="st">'/home/delgado/proj/scraping/'</span>
 
-df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,var,<span class="st">'.rds'</span>))
+df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,varname,<span class="st">'.rds'</span>))
 
 <span class="kw">head</span>(df1) %&gt;%<span class="st"> </span>knitr::<span class="kw">kable</span>()</code></pre></div>
 <table>
@@ -127,50 +114,50 @@ df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,var,<s
 <td align="right">13.125</td>
 <td align="right">52.3799</td>
 <td align="left">2000-01-01</td>
-<td align="right">37.89990</td>
-<td align="left">net radiation</td>
+<td align="right">1.17e-05</td>
+<td align="left">precipitation rate</td>
 </tr>
 <tr class="even">
 <td align="right">15.000</td>
 <td align="right">52.3799</td>
 <td align="left">2000-01-01</td>
-<td align="right">44.89990</td>
-<td align="left">net radiation</td>
+<td align="right">1.50e-05</td>
+<td align="left">precipitation rate</td>
 </tr>
 <tr class="odd">
 <td align="right">13.125</td>
 <td align="right">50.4752</td>
 <td align="left">2000-01-01</td>
-<td align="right">50.69995</td>
-<td align="left">net radiation</td>
+<td align="right">4.07e-05</td>
+<td align="left">precipitation rate</td>
 </tr>
 <tr class="even">
 <td align="right">15.000</td>
 <td align="right">50.4752</td>
 <td align="left">2000-01-01</td>
-<td align="right">59.00000</td>
-<td align="left">net radiation</td>
+<td align="right">2.22e-05</td>
+<td align="left">precipitation rate</td>
 </tr>
 <tr class="odd">
 <td align="right">13.125</td>
 <td align="right">52.3799</td>
 <td align="left">2000-01-02</td>
-<td align="right">53.50000</td>
-<td align="left">net radiation</td>
+<td align="right">1.90e-06</td>
+<td align="left">precipitation rate</td>
 </tr>
 <tr class="even">
 <td align="right">15.000</td>
 <td align="right">52.3799</td>
 <td align="left">2000-01-02</td>
-<td align="right">51.50000</td>
-<td align="left">net radiation</td>
+<td align="right">6.90e-06</td>
+<td align="left">precipitation rate</td>
 </tr>
 </tbody>
 </table>
-<p>Compute daily maxima if it applies:</p>
+<p>Compute daily maxima if it applies (for example temperature and relative humidity, not precipitation rate or net radiation, which is given as daily values):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df1 %&gt;%
 <span class="st">    </span><span class="kw">group_by</span>(<span class="dt">day=</span><span class="kw">floor_date</span>(time,<span class="st">&quot;day&quot;</span>)) %&gt;%
-<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">daily_max=</span><span class="kw">max</span>(value),<span class="dt">daily_min=</span><span class="kw">min</span>(value),<span class="dt">daily_mean=</span><span class="kw">mean</span>(value),<span class="dt">var=</span><span class="kw">first</span>(var)) %&gt;%<span class="st">  </span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">daily_max=</span><span class="kw">max</span>(value),<span class="dt">daily_min=</span><span class="kw">min</span>(value),<span class="dt">daily_mean=</span><span class="kw">mean</span>(value),<span class="dt">varname=</span><span class="kw">first</span>(varname)) %&gt;%<span class="st">  </span>
 <span class="st">    </span><span class="kw">head</span>() %&gt;%
 <span class="st">    </span>knitr::<span class="kw">kable</span>()</code></pre></div>
 <table>
@@ -180,51 +167,51 @@ df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,var,<s
 <th align="right">daily_max</th>
 <th align="right">daily_min</th>
 <th align="right">daily_mean</th>
-<th align="left">var</th>
+<th align="left">varname</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">2000-01-01</td>
-<td align="right">59.00000</td>
-<td align="right">37.8999</td>
-<td align="right">48.12494</td>
-<td align="left">net radiation</td>
+<td align="right">4.07e-05</td>
+<td align="right">1.17e-05</td>
+<td align="right">2.24e-05</td>
+<td align="left">prate</td>
 </tr>
 <tr class="even">
 <td align="left">2000-01-02</td>
-<td align="right">62.19995</td>
-<td align="right">51.5000</td>
-<td align="right">56.54999</td>
-<td align="left">net radiation</td>
+<td align="right">3.17e-05</td>
+<td align="right">1.90e-06</td>
+<td align="right">1.33e-05</td>
+<td align="left">prate</td>
 </tr>
 <tr class="odd">
 <td align="left">2000-01-03</td>
-<td align="right">68.19995</td>
-<td align="right">50.8999</td>
-<td align="right">58.49994</td>
-<td align="left">net radiation</td>
+<td align="right">3.37e-05</td>
+<td align="right">1.00e-07</td>
+<td align="right">1.17e-05</td>
+<td align="left">prate</td>
 </tr>
 <tr class="even">
 <td align="left">2000-01-04</td>
-<td align="right">62.69995</td>
-<td align="right">46.8999</td>
-<td align="right">54.54993</td>
-<td align="left">net radiation</td>
+<td align="right">6.02e-05</td>
+<td align="right">2.80e-05</td>
+<td align="right">3.73e-05</td>
+<td align="left">prate</td>
 </tr>
 <tr class="odd">
 <td align="left">2000-01-05</td>
-<td align="right">68.50000</td>
-<td align="right">54.0000</td>
-<td align="right">61.17499</td>
-<td align="left">net radiation</td>
+<td align="right">1.92e-05</td>
+<td align="right">1.70e-06</td>
+<td align="right">9.30e-06</td>
+<td align="left">prate</td>
 </tr>
 <tr class="even">
 <td align="left">2000-01-06</td>
-<td align="right">69.69995</td>
-<td align="right">55.5000</td>
-<td align="right">62.54999</td>
-<td align="left">net radiation</td>
+<td align="right">2.30e-06</td>
+<td align="right">3.00e-07</td>
+<td align="right">8.00e-07</td>
+<td align="left">prate</td>
 </tr>
 </tbody>
 </table>
