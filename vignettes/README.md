@@ -1,7 +1,7 @@
 NCEP example
 ================
 JM Delgado
-2018-11-29
+2018-12-11
 
 Define request, download and convert from ncdf to data frame and save
 ---------------------------------------------------------------------
@@ -29,17 +29,18 @@ coor <- data.frame(l=12,r=14,b=50,t=53)
 Choose years and variables
 
 ``` r
-var <- c('temperature')
-years <- c('2008')
+var <- c('net radiation')
+years <- c('2000','2001')
 setwd('/home/delgado/proj/scraping')
 request <- def_request(coor,var,years)
 #> Joining, by = "varname"
 knitr::kable(request)
 ```
 
-| year | variable    | varname | prefix                                                           | fname        | geometry                               |
-|:-----|:------------|:--------|:-----------------------------------------------------------------|:-------------|:---------------------------------------|
-| 2008 | temperature | air     | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/> | air.2m.gauss | 12, 14, 14, 12, 12, 50, 50, 53, 53, 50 |
+| year | variable      | varname | prefix                                                                     | fname           | geometry                               |
+|:-----|:--------------|:--------|:---------------------------------------------------------------------------|:----------------|:---------------------------------------|
+| 2000 | net radiation | dswrf   | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/> | dswrf.sfc.gauss | 12, 14, 14, 12, 12, 50, 50, 53, 53, 50 |
+| 2001 | net radiation | dswrf   | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/> | dswrf.sfc.gauss | 12, 14, 14, 12, 12, 50, 50, 53, 53, 50 |
 
 ### Download and convert from ncdf to data frame and save
 
@@ -73,7 +74,7 @@ library(lubridate)
 #> 
 #>     date
 
-var=lookup_var('temperature') %>% pull(varname)
+var=lookup_var('net radiation') %>% pull(varname)
 
 myproj='/home/delgado/proj/scraping/'
 
@@ -82,17 +83,18 @@ df1=readRDS(paste0(myproj,var,'.rds'))
 head(df1) %>% knitr::kable()
 ```
 
-|     lon|      lat| time                |   value| var         |
-|-------:|--------:|:--------------------|-------:|:------------|
-|  13.125|  52.3799| 2008-01-01 00:00:00 |  271.50| temperature |
-|  15.000|  52.3799| 2008-01-01 00:00:00 |  271.80| temperature |
-|  13.125|  50.4752| 2008-01-01 00:00:00 |  271.00| temperature |
-|  15.000|  50.4752| 2008-01-01 00:00:00 |  271.21| temperature |
-|  13.125|  52.3799| 2008-01-01 06:00:00 |  273.30| temperature |
-|  15.000|  52.3799| 2008-01-01 06:00:00 |  273.71| temperature |
+|     lon|      lat| time       |     value| var           |
+|-------:|--------:|:-----------|---------:|:--------------|
+|  13.125|  52.3799| 2000-01-01 |  37.89990| net radiation |
+|  15.000|  52.3799| 2000-01-01 |  44.89990| net radiation |
+|  13.125|  50.4752| 2000-01-01 |  50.69995| net radiation |
+|  15.000|  50.4752| 2000-01-01 |  59.00000| net radiation |
+|  13.125|  52.3799| 2000-01-02 |  53.50000| net radiation |
+|  15.000|  52.3799| 2000-01-02 |  51.50000| net radiation |
+
+Compute daily maxima if it applies:
 
 ``` r
-
 df1 %>%
     group_by(day=floor_date(time,"day")) %>%
     summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),var=first(var)) %>%  
@@ -100,11 +102,11 @@ df1 %>%
     knitr::kable()
 ```
 
-| day        |  daily\_max|  daily\_min|  daily\_mean| var         |
-|:-----------|-----------:|-----------:|------------:|:------------|
-| 2008-01-01 |      273.71|      259.90|     268.7456| temperature |
-| 2008-01-02 |      271.21|      264.40|     267.9656| temperature |
-| 2008-01-03 |      270.00|      264.10|     266.8962| temperature |
-| 2008-01-04 |      273.10|      265.30|     268.9025| temperature |
-| 2008-01-05 |      274.60|      269.71|     272.9637| temperature |
-| 2008-01-06 |      276.80|      272.90|     274.3706| temperature |
+| day        |  daily\_max|  daily\_min|  daily\_mean| var           |
+|:-----------|-----------:|-----------:|------------:|:--------------|
+| 2000-01-01 |    59.00000|     37.8999|     48.12494| net radiation |
+| 2000-01-02 |    62.19995|     51.5000|     56.54999| net radiation |
+| 2000-01-03 |    68.19995|     50.8999|     58.49994| net radiation |
+| 2000-01-04 |    62.69995|     46.8999|     54.54993| net radiation |
+| 2000-01-05 |    68.50000|     54.0000|     61.17499| net radiation |
+| 2000-01-06 |    69.69995|     55.5000|     62.54999| net radiation |

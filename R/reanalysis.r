@@ -34,7 +34,7 @@ get_nc <- function(request_all)
     }
 }
 #' convert ncdf into data frame and save
-#' @importFrom lubridate ymd_hms hours
+#' @importFrom lubridate ymd_hms hours as_datetime
 #' @import dplyr
 #' @import ncdf4
 #' @import lwgeom
@@ -66,14 +66,13 @@ nc2rds <- function(request_all)
 
                 dimnames(x)[[1]] <- lon[nlatlon[[1]]]
                 dimnames(x)[[2]] <- lat[nlatlon[[2]]]
-                dimnames(x)[[3]]  <- as.character(tformat)
+                dimnames(x)[[3]]  <- as.numeric(tformat)
 
-                head(x)
                 xmelt <- melt(x)
                 colnames(xmelt) <- c("lon","lat","time","value")
 
 
-                DF[[i]] <- xmelt %>% mutate(time=ymd_hms(time),var=var)
+                DF[[i]] <- xmelt %>% mutate(time=as_datetime(time),var=var)
                 nc_close(nc)
             } else {cat(fname," not found.")}
             df <- do.call("rbind",DF)

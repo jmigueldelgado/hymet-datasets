@@ -43,30 +43,6 @@ request <- def_request(coor,var,years)
 knitr::kable(request)
 
 
-v=request$varname
-i=1
-fname <- paste0(request$fname[i],'.',request$year[i],'.nc')
-library(reshape2)
-library(ncdf4)
-nc=nc_open(fname)
-tt=ncvar_get(nc,varid="time")
-tformat= ymd_hms("1800-01-01 00:00:00")+hours(tt)
-lat=ncvar_get(nc,varid="lat")
-lon=ncvar_get(nc,varid="lon")
-nlatlon <- def_spatial_domain(nc,request[i,])
-var=lookup_ncep(v) %>% pull(variable)
-x <- ncvar_get(nc,v,start=c(min(nlatlon[[1]]),min(nlatlon[[2]]),1),count=c(length(nlatlon[[1]]),length(nlatlon[[2]]),length(tformat)))
-
-dimnames(x)[[1]] <- lon[nlatlon[[1]]]
-dimnames(x)[[2]] <- lat[nlatlon[[2]]]
-dimnames(x)[[3]]  <- as.numeric(tformat)
-
-xmelt <- melt(x)
-colnames(xmelt) <- c("lon","lat","time","value")
-
-DF[[i]] <- xmelt %>% mutate(time=as_datetime(time),var=var)
-nc_close(nc)
-
 ```
 
 ### Download and convert from ncdf to data frame and save
@@ -95,7 +71,11 @@ myproj='/home/delgado/proj/scraping/'
 df1=readRDS(paste0(myproj,var,'.rds'))
 
 head(df1) %>% knitr::kable()
+```
 
+Compute daily maxima if it applies:
+
+```{r, results='asis'}
 df1 %>%
     group_by(day=floor_date(time,"day")) %>%
     summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),var=first(var)) %>%  
