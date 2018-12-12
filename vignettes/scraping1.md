@@ -110,17 +110,17 @@ Compute daily maxima if it applies (for example temperature and relative humidit
 
 ``` r
 df1 %>%
-    group_by(day=floor_date(time,"day")) %>%
-    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),varname=first(varname)) %>%  
+    group_by(day=floor_date(time,"day"),lon,lat) %>%
+    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),var=first(var)) %>%  
     head() %>%
     knitr::kable()
 ```
 
-| day        |  daily\_max|  daily\_min|  daily\_mean| varname |
-|:-----------|-----------:|-----------:|------------:|:--------|
-| 2000-01-01 |       274.7|       262.7|     270.9250| gflux   |
-| 2000-01-02 |       275.2|       269.2|     272.6312| gflux   |
-| 2000-01-03 |       276.7|       270.1|     273.6250| gflux   |
-| 2000-01-04 |       277.2|       272.7|     275.0250| gflux   |
-| 2000-01-05 |       277.1|       269.3|     273.5875| gflux   |
-| 2000-01-06 |       276.7|       267.4|     272.2687| gflux   |
+| day        |     lon|      lat|  daily\_max|  daily\_min|  daily\_mean| var         |
+|:-----------|-------:|--------:|-----------:|-----------:|------------:|:------------|
+| 2000-01-01 |  13.125|  50.4752|       273.6|       265.7|      271.050| temperature |
+| 2000-01-01 |  13.125|  52.3799|       274.7|       268.6|      272.625| temperature |
+| 2000-01-01 |  15.000|  50.4752|       271.5|       262.7|      268.900| temperature |
+| 2000-01-01 |  15.000|  52.3799|       273.2|       267.3|      271.125| temperature |
+| 2000-01-02 |  13.125|  50.4752|       273.5|       271.1|      272.475| temperature |
+| 2000-01-02 |  13.125|  52.3799|       275.2|       273.1|      274.425| temperature |

@@ -81,8 +81,8 @@ Compute daily maxima if it applies (for example temperature and relative humidit
 
 ```{r, results='asis'}
 df1 %>%
-    group_by(day=floor_date(time,"day")) %>%
-    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),varname=first(varname)) %>%  
+    group_by(day=floor_date(time,"day"),lon,lat) %>%
+    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),var=first(var)) %>%  
     head() %>%
     knitr::kable()
 ```
