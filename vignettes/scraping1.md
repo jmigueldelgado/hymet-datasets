@@ -56,10 +56,37 @@ nc2rds(request)
 ### Print metadata
 
 ``` r
+setwd('/home/delgado/proj/scraping')
 get_nc_meta(request,var)
 ```
 
-air.2m.gauss.2000.nc not found.
+$long\_name \[1\] "4xDaily Air temperature at 2 m"
+
+$units \[1\] "degK"
+
+$precision \[1\] 2
+
+$least\_significant\_digit \[1\] 1
+
+$GRIB\_id \[1\] 11
+
+$GRIB\_name \[1\] "TMP"
+
+$var\_desc \[1\] "Air temperature"
+
+$level\_desc \[1\] "2 m"
+
+$statistic \[1\] "Mean"
+
+$parent\_stat \[1\] "Individual Obs"
+
+$missing\_value \[1\] -9.96921e+36
+
+$actual\_range \[1\] 172.8 328.4
+
+$valid\_range \[1\] 150 400
+
+$dataset \[1\] "NCEP Reanalysis"
 
 Load rds data examples
 ----------------------

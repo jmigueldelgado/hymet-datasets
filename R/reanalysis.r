@@ -16,7 +16,7 @@ download_nc <- function(request)
     if(!file.exists(fname) & !file.exists(paste0(request$fname[1],'_',request$year[1],'.nc')))
     {
         curl_download(fpath,file.path(getwd(),fname))
-        
+
         cat("downloaded ",fpath,'\n')
     } else
     {
