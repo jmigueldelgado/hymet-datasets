@@ -50,9 +50,11 @@ knitr::kable(request)
 get_nc(request)
 
 nc2rds(request)
+```
 
+### Print metadata
+```{r, results='asis'}
 get_nc_meta(request,var)
-
 ```
 
 

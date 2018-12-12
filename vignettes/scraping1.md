@@ -51,9 +51,15 @@ knitr::kable(request)
 get_nc(request)
 
 nc2rds(request)
+```
 
+### Print metadata
+
+``` r
 get_nc_meta(request,var)
 ```
+
+air.2m.gauss.2000.nc not found.
 
 Load rds data examples
 ----------------------
