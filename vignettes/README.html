@@ -29,7 +29,7 @@ body {
 <p>JM Delgado<br />
 2018-12-12</p>
 <h2 id="define-request-download-and-convert-from-ncdf-to-data-frame-and-save">Define request, download and convert from ncdf to data frame and save</h2>
-<p><code>var</code> should be a meteorological variable name as a string. Variables are available from two datasets. From NCEP such as: <code>temperature</code>,<code>relative humidity</code>,<code>u wind</code>,<code>v wind</code>,<code>soil heat flux</code>,<code>net radiation</code> or <code>precipitation rate</code>. And from <a href="http://dx.doi.org/10.5676/DWD_GPCC/FD_D_V2018_100">GPCC</a> such as 'gpcc precipitation' and 'number of gauges'.</p>
+<p><code>var</code> should be a meteorological variable name as a string. Variables are available from two datasets. From NCEP such as: <code>temperature</code>,<code>relative humidity</code>,<code>u wind</code>,<code>v wind</code>,<code>soil heat flux</code>,<code>net radiation</code> or <code>precipitation rate</code>. And from <a href="http://dx.doi.org/10.5676/DWD_GPCC/FD_D_V2018_100">GPCC</a> such as <code>gpcc precipitation</code> and <code>number of gauges</code>.</p>
 <h3 id="define-request">Define request</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(scraping)</code></pre></div>
 <p>Insert coordinates as points:</p>
@@ -113,20 +113,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(request)</code></pr
 <h2 id="load-rds-data-examples">Load rds data examples</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(scraping)
 <span class="kw">library</span>(dplyr)
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'dplyr'</span>
-<span class="co">#&gt; The following objects are masked from 'package:stats':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     filter, lag</span>
-<span class="co">#&gt; The following objects are masked from 'package:base':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     intersect, setdiff, setequal, union</span>
 <span class="kw">library</span>(lubridate)
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'lubridate'</span>
-<span class="co">#&gt; The following object is masked from 'package:base':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     date</span>
 varname=<span class="kw">lookup_var</span>(request<span class="op">$</span>variable) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(varname)
 
 varname <span class="op">%&gt;%</span><span class="st"> </span>knitr<span class="op">::</span><span class="kw">kable</span>()</code></pre></div>

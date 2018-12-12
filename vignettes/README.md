@@ -6,7 +6,7 @@ JM Delgado
 Define request, download and convert from ncdf to data frame and save
 ---------------------------------------------------------------------
 
-`var` should be a meteorological variable name as a string. Variables are available from two datasets. From NCEP such as: `temperature`,`relative humidity`,`u wind`,`v wind`,`soil heat flux`,`net radiation` or `precipitation rate`. And from [GPCC](http://dx.doi.org/10.5676/DWD_GPCC/FD_D_V2018_100) such as 'gpcc precipitation' and 'number of gauges'.
+`var` should be a meteorological variable name as a string. Variables are available from two datasets. From NCEP such as: `temperature`,`relative humidity`,`u wind`,`v wind`,`soil heat flux`,`net radiation` or `precipitation rate`. And from [GPCC](http://dx.doi.org/10.5676/DWD_GPCC/FD_D_V2018_100) such as `gpcc precipitation` and `number of gauges`.
 
 ### Define request
 
@@ -61,20 +61,7 @@ Load rds data examples
 ``` r
 library(scraping)
 library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 library(lubridate)
-#> 
-#> Attaching package: 'lubridate'
-#> The following object is masked from 'package:base':
-#> 
-#>     date
 varname=lookup_var(request$variable) %>% pull(varname)
 
 varname %>% knitr::kable()
