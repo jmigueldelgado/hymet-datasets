@@ -36,7 +36,7 @@ coor <- data.frame(l=12,r=14,b=50,t=53)
 
 Choose years and variables
 ```{r, results='asis'}
-var <- c('soil heat flux','gpcc precipitation')
+var <- c('temperature','gpcc precipitation')
 years <- c('2000','2001')
 setwd('/home/delgado/proj/scraping')
 request <- def_request(coor,var,years)
@@ -62,15 +62,16 @@ get_nc_meta(request,var)
 library(scraping)
 library(dplyr)
 library(lubridate)
-varname=lookup_var(request$variable) %>% pull(varname)
+lookup=lookup_var(request$variable)
 
-varname %>% knitr::kable()
+lookup %>% knitr::kable()
 
 myproj='/home/delgado/proj/scraping/'
 
-df1=readRDS(paste0(myproj,varname[1],'.rds'))
+df1=readRDS(paste0(myproj,lookup$varname[1],'.rds'))
+df2=readRDS(paste0(myproj,lookup$varname[2],'.rds'))
 
-head(df1) %>% knitr::kable()
+head(df2) %>% knitr::kable()
 ```
 
 Compute daily maxima if it applies (for example temperature and relative humidity, not precipitation rate or net radiation, which is given as daily values):

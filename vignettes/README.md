@@ -29,7 +29,7 @@ coor <- data.frame(l=12,r=14,b=50,t=53)
 Choose years and variables
 
 ``` r
-var <- c('soil heat flux','gpcc precipitation')
+var <- c('temperature','gpcc precipitation')
 years <- c('2000','2001')
 setwd('/home/delgado/proj/scraping')
 request <- def_request(coor,var,years)
@@ -37,12 +37,12 @@ request <- def_request(coor,var,years)
 knitr::kable(request)
 ```
 
-| year | variable           | varname | dataset | prefix                                                                     | fname                    | geometry                                        |
-|:-----|:-------------------|:--------|:--------|:---------------------------------------------------------------------------|:-------------------------|:------------------------------------------------|
-| 2000 | soil heat flux     | gflux   | ncep    | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/> | gflux.sfc.gauss          | list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50)) |
-| 2000 | gpcc precipitation | precip  | gpcc    | <ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/>                    | full\_data\_daily\_v2018 | list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50)) |
-| 2001 | soil heat flux     | gflux   | ncep    | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/> | gflux.sfc.gauss          | list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50)) |
-| 2001 | gpcc precipitation | precip  | gpcc    | <ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/>                    | full\_data\_daily\_v2018 | list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50)) |
+| year | variable           | varname | dataset | prefix                                                           | fname                    | geometry                                        |
+|:-----|:-------------------|:--------|:--------|:-----------------------------------------------------------------|:-------------------------|:------------------------------------------------|
+| 2000 | temperature        | air     | ncep    | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/> | air.2m.gauss             | list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50)) |
+| 2000 | gpcc precipitation | precip  | gpcc    | <ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/>          | full\_data\_daily\_v2018 | list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50)) |
+| 2001 | temperature        | air     | ncep    | <ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/> | air.2m.gauss             | list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50)) |
+| 2001 | gpcc precipitation | precip  | gpcc    | <ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/>          | full\_data\_daily\_v2018 | list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50)) |
 
 ### Download and convert from ncdf to data frame and save
 
@@ -62,33 +62,34 @@ Load rds data examples
 library(scraping)
 library(dplyr)
 library(lubridate)
-varname=lookup_var(request$variable) %>% pull(varname)
+lookup=lookup_var(request$variable)
 
-varname %>% knitr::kable()
+lookup %>% knitr::kable()
 ```
 
-| x      |
-|:-------|
-| gflux  |
-| precip |
+| variable           | varname |
+|:-------------------|:--------|
+| temperature        | air     |
+| gpcc precipitation | precip  |
 
 ``` r
 
 myproj='/home/delgado/proj/scraping/'
 
-df1=readRDS(paste0(myproj,varname[1],'.rds'))
+df1=readRDS(paste0(myproj,lookup$varname[1],'.rds'))
+df2=readRDS(paste0(myproj,lookup$varname[2],'.rds'))
 
-head(df1) %>% knitr::kable()
+head(df2) %>% knitr::kable()
 ```
 
-|     lon|      lat| time       |      value| var   | dataset |
-|-------:|--------:|:-----------|----------:|:------|:--------|
-|  13.125|  52.3799| 2000-01-01 |  13.000000| gflux | ncep    |
-|  15.000|  52.3799| 2000-01-01 |   4.899902| gflux | ncep    |
-|  13.125|  50.4752| 2000-01-01 |   5.699951| gflux | ncep    |
-|  15.000|  50.4752| 2000-01-01 |   6.899902| gflux | ncep    |
-|  13.125|  52.3799| 2000-01-02 |   4.500000| gflux | ncep    |
-|  15.000|  52.3799| 2000-01-02 |   3.699951| gflux | ncep    |
+|   lon|   lat| time       |     value| var    | dataset |
+|-----:|-----:|:-----------|---------:|:-------|:--------|
+|  12.5|  50.5| 2000-01-01 |  5.205224| precip | gpcc    |
+|  13.5|  50.5| 2000-01-01 |  2.517535| precip | gpcc    |
+|  12.5|  51.5| 2000-01-01 |  1.775673| precip | gpcc    |
+|  13.5|  51.5| 2000-01-01 |  1.823611| precip | gpcc    |
+|  12.5|  52.5| 2000-01-01 |  3.002200| precip | gpcc    |
+|  13.5|  52.5| 2000-01-01 |  1.986066| precip | gpcc    |
 
 Compute daily maxima if it applies (for example temperature and relative humidity, not precipitation rate or net radiation, which is given as daily values):
 
@@ -102,9 +103,9 @@ df1 %>%
 
 | day        |  daily\_max|  daily\_min|  daily\_mean| varname |
 |:-----------|-----------:|-----------:|------------:|:--------|
-| 2000-01-01 |   13.000000|   4.8999023|     7.624939| gflux   |
-| 2000-01-02 |    4.500000|   3.3999023|     3.949951| gflux   |
-| 2000-01-03 |    3.899902|  -0.3000488|     2.724915| gflux   |
-| 2000-01-04 |    3.699951|   1.1999512|     2.574951| gflux   |
-| 2000-01-05 |   17.399902|   5.6999512|    11.824951| gflux   |
-| 2000-01-06 |   16.399902|   2.3999023|     7.799927| gflux   |
+| 2000-01-01 |       274.7|       262.7|     270.9250| gflux   |
+| 2000-01-02 |       275.2|       269.2|     272.6312| gflux   |
+| 2000-01-03 |       276.7|       270.1|     273.6250| gflux   |
+| 2000-01-04 |       277.2|       272.7|     275.0250| gflux   |
+| 2000-01-05 |       277.1|       269.3|     273.5875| gflux   |
+| 2000-01-06 |       276.7|       267.4|     272.2687| gflux   |

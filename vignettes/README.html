@@ -37,21 +37,21 @@ body {
 <p>...or as left, right, bottom and top extents of your region of interest:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">coor &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">l=</span><span class="dv">12</span>,<span class="dt">r=</span><span class="dv">14</span>,<span class="dt">b=</span><span class="dv">50</span>,<span class="dt">t=</span><span class="dv">53</span>)</code></pre></div>
 <p>Choose years and variables</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">var &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'soil heat flux'</span>,<span class="st">'gpcc precipitation'</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">var &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'temperature'</span>,<span class="st">'gpcc precipitation'</span>)
 years &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'2000'</span>,<span class="st">'2001'</span>)
 <span class="kw">setwd</span>(<span class="st">'/home/delgado/proj/scraping'</span>)
 request &lt;-<span class="st"> </span><span class="kw">def_request</span>(coor,var,years)
 <span class="co">#&gt; Joining, by = &quot;varname&quot;</span>
 knitr<span class="op">::</span><span class="kw">kable</span>(request)</code></pre></div>
-<table>
+<table style="width:100%;">
 <colgroup>
 <col width="3%"></col>
 <col width="10%"></col>
-<col width="4%"></col>
-<col width="4%"></col>
-<col width="38%"></col>
-<col width="13%"></col>
-<col width="24%"></col>
+<col width="5%"></col>
+<col width="5%"></col>
+<col width="34%"></col>
+<col width="14%"></col>
+<col width="26%"></col>
 </colgroup>
 <thead>
 <tr class="header">
@@ -67,11 +67,11 @@ knitr<span class="op">::</span><span class="kw">kable</span>(request)</code></pr
 <tbody>
 <tr class="odd">
 <td align="left">2000</td>
-<td align="left">soil heat flux</td>
-<td align="left">gflux</td>
+<td align="left">temperature</td>
+<td align="left">air</td>
 <td align="left">ncep</td>
-<td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/</a></td>
-<td align="left">gflux.sfc.gauss</td>
+<td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/</a></td>
+<td align="left">air.2m.gauss</td>
 <td align="left">list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50))</td>
 </tr>
 <tr class="even">
@@ -85,11 +85,11 @@ knitr<span class="op">::</span><span class="kw">kable</span>(request)</code></pr
 </tr>
 <tr class="odd">
 <td align="left">2001</td>
-<td align="left">soil heat flux</td>
-<td align="left">gflux</td>
+<td align="left">temperature</td>
+<td align="left">air</td>
 <td align="left">ncep</td>
-<td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/</a></td>
-<td align="left">gflux.sfc.gauss</td>
+<td align="left"><a href="ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/" class="uri">ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/</a></td>
+<td align="left">air.2m.gauss</td>
 <td align="left">list(c(12, 14, 14, 12, 12, 50, 50, 53, 53, 50))</td>
 </tr>
 <tr class="even">
@@ -114,20 +114,23 @@ knitr<span class="op">::</span><span class="kw">kable</span>(request)</code></pr
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(scraping)
 <span class="kw">library</span>(dplyr)
 <span class="kw">library</span>(lubridate)
-varname=<span class="kw">lookup_var</span>(request<span class="op">$</span>variable) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(varname)
+lookup=<span class="kw">lookup_var</span>(request<span class="op">$</span>variable)
 
-varname <span class="op">%&gt;%</span><span class="st"> </span>knitr<span class="op">::</span><span class="kw">kable</span>()</code></pre></div>
+lookup <span class="op">%&gt;%</span><span class="st"> </span>knitr<span class="op">::</span><span class="kw">kable</span>()</code></pre></div>
 <table>
 <thead>
 <tr class="header">
-<th align="left">x</th>
+<th align="left">variable</th>
+<th align="left">varname</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">gflux</td>
+<td align="left">temperature</td>
+<td align="left">air</td>
 </tr>
 <tr class="even">
+<td align="left">gpcc precipitation</td>
 <td align="left">precip</td>
 </tr>
 </tbody>
@@ -135,9 +138,10 @@ varname <span class="op">%&gt;%</span><span class="st"> </span>knitr<span class=
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 myproj=<span class="st">'/home/delgado/proj/scraping/'</span>
 
-df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,varname[<span class="dv">1</span>],<span class="st">'.rds'</span>))
+df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,lookup<span class="op">$</span>varname[<span class="dv">1</span>],<span class="st">'.rds'</span>))
+df2=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,lookup<span class="op">$</span>varname[<span class="dv">2</span>],<span class="st">'.rds'</span>))
 
-<span class="kw">head</span>(df1) <span class="op">%&gt;%</span><span class="st"> </span>knitr<span class="op">::</span><span class="kw">kable</span>()</code></pre></div>
+<span class="kw">head</span>(df2) <span class="op">%&gt;%</span><span class="st"> </span>knitr<span class="op">::</span><span class="kw">kable</span>()</code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -151,52 +155,52 @@ df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,varnam
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">13.125</td>
-<td align="right">52.3799</td>
+<td align="right">12.5</td>
+<td align="right">50.5</td>
 <td align="left">2000-01-01</td>
-<td align="right">13.000000</td>
-<td align="left">gflux</td>
-<td align="left">ncep</td>
+<td align="right">5.205224</td>
+<td align="left">precip</td>
+<td align="left">gpcc</td>
 </tr>
 <tr class="even">
-<td align="right">15.000</td>
-<td align="right">52.3799</td>
+<td align="right">13.5</td>
+<td align="right">50.5</td>
 <td align="left">2000-01-01</td>
-<td align="right">4.899902</td>
-<td align="left">gflux</td>
-<td align="left">ncep</td>
+<td align="right">2.517535</td>
+<td align="left">precip</td>
+<td align="left">gpcc</td>
 </tr>
 <tr class="odd">
-<td align="right">13.125</td>
-<td align="right">50.4752</td>
+<td align="right">12.5</td>
+<td align="right">51.5</td>
 <td align="left">2000-01-01</td>
-<td align="right">5.699951</td>
-<td align="left">gflux</td>
-<td align="left">ncep</td>
+<td align="right">1.775673</td>
+<td align="left">precip</td>
+<td align="left">gpcc</td>
 </tr>
 <tr class="even">
-<td align="right">15.000</td>
-<td align="right">50.4752</td>
+<td align="right">13.5</td>
+<td align="right">51.5</td>
 <td align="left">2000-01-01</td>
-<td align="right">6.899902</td>
-<td align="left">gflux</td>
-<td align="left">ncep</td>
+<td align="right">1.823611</td>
+<td align="left">precip</td>
+<td align="left">gpcc</td>
 </tr>
 <tr class="odd">
-<td align="right">13.125</td>
-<td align="right">52.3799</td>
-<td align="left">2000-01-02</td>
-<td align="right">4.500000</td>
-<td align="left">gflux</td>
-<td align="left">ncep</td>
+<td align="right">12.5</td>
+<td align="right">52.5</td>
+<td align="left">2000-01-01</td>
+<td align="right">3.002200</td>
+<td align="left">precip</td>
+<td align="left">gpcc</td>
 </tr>
 <tr class="even">
-<td align="right">15.000</td>
-<td align="right">52.3799</td>
-<td align="left">2000-01-02</td>
-<td align="right">3.699951</td>
-<td align="left">gflux</td>
-<td align="left">ncep</td>
+<td align="right">13.5</td>
+<td align="right">52.5</td>
+<td align="left">2000-01-01</td>
+<td align="right">1.986066</td>
+<td align="left">precip</td>
+<td align="left">gpcc</td>
 </tr>
 </tbody>
 </table>
@@ -219,44 +223,44 @@ df1=<span class="kw">readRDS</span>(<span class="kw">paste0</span>(myproj,varnam
 <tbody>
 <tr class="odd">
 <td align="left">2000-01-01</td>
-<td align="right">13.000000</td>
-<td align="right">4.8999023</td>
-<td align="right">7.624939</td>
+<td align="right">274.7</td>
+<td align="right">262.7</td>
+<td align="right">270.9250</td>
 <td align="left">gflux</td>
 </tr>
 <tr class="even">
 <td align="left">2000-01-02</td>
-<td align="right">4.500000</td>
-<td align="right">3.3999023</td>
-<td align="right">3.949951</td>
+<td align="right">275.2</td>
+<td align="right">269.2</td>
+<td align="right">272.6312</td>
 <td align="left">gflux</td>
 </tr>
 <tr class="odd">
 <td align="left">2000-01-03</td>
-<td align="right">3.899902</td>
-<td align="right">-0.3000488</td>
-<td align="right">2.724915</td>
+<td align="right">276.7</td>
+<td align="right">270.1</td>
+<td align="right">273.6250</td>
 <td align="left">gflux</td>
 </tr>
 <tr class="even">
 <td align="left">2000-01-04</td>
-<td align="right">3.699951</td>
-<td align="right">1.1999512</td>
-<td align="right">2.574951</td>
+<td align="right">277.2</td>
+<td align="right">272.7</td>
+<td align="right">275.0250</td>
 <td align="left">gflux</td>
 </tr>
 <tr class="odd">
 <td align="left">2000-01-05</td>
-<td align="right">17.399902</td>
-<td align="right">5.6999512</td>
-<td align="right">11.824951</td>
+<td align="right">277.1</td>
+<td align="right">269.3</td>
+<td align="right">273.5875</td>
 <td align="left">gflux</td>
 </tr>
 <tr class="even">
 <td align="left">2000-01-06</td>
-<td align="right">16.399902</td>
-<td align="right">2.3999023</td>
-<td align="right">7.799927</td>
+<td align="right">276.7</td>
+<td align="right">267.4</td>
+<td align="right">272.2687</td>
 <td align="left">gflux</td>
 </tr>
 </tbody>
