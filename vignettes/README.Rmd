@@ -36,7 +36,7 @@ coor <- data.frame(l=12,r=14,b=50,t=53)
 
 Choose years and variables
 ```{r, results='asis'}
-var <- c('precipitation rate')
+var <- c('soil heat flux')
 years <- c('2000','2001')
 setwd('/home/delgado/proj/scraping')
 request <- def_request(coor,var,years)

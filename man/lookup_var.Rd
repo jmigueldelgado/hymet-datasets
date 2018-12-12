@@ -2,7 +2,7 @@
 % Please edit documentation in R/reanalysis.r
 \name{lookup_var}
 \alias{lookup_var}
-\title{lookup variable names in NCEP}
+\title{lookup variable names in NCEP and GPCC}
 \usage{
 lookup_var(var)
 }
@@ -10,5 +10,5 @@ lookup_var(var)
 \item{var}{a meteorological variable name as a string such as 'temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'}
 }
 \description{
-lookup variable names in NCEP
+lookup variable names in NCEP and GPCC
 }

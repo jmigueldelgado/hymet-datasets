@@ -4,22 +4,38 @@
 #' @export
 download_nc <- function(request)
 {
-    fname <- paste0(request$fname[1],'.',request$year[1],'.nc')
-    fpath <- paste0(request$prefix[1],request$fname[1],'.',request$year[1],'.nc')
-    if(!file.exists(fname))
+    if(request$dataset=='gpcc')
     {
-        cat("wget ",fpath,'\n')
+        fname <- paste0(request$fname[1],'_',request$year[1],'.nc.gz')
+        fpath <- paste0(request$prefix[1],fname)
+    } else
+    {
+        fname <- paste0(request$fname[1],'.',request$year[1],'.nc')
+        fpath <- paste0(request$prefix[1],fname)
+    }
+    if(!file.exists(fname) & !file.exists(paste0(request$fname[1],'_',request$year[1],'.nc')))
+    {
         curl_download(fpath,file.path(getwd(),fname))
+        
+        cat("downloaded ",fpath,'\n')
+    } else
+    {
+      cat(fname," already exists: not downloading\n")
     }
 
     if(file.exists(fname))
     {
-        cat(" downloaded ",fname,"\n")
-    } else
-    {
-        cat("problems downloading from NCEP server\n")
-    }
+        if(request$dataset=='gpcc' & !file.exists(paste0(request$fname[1],'_',request$year[1],'.nc')))
+        {
+            cat(" unpacking ",fname,"\n")
+            gunzip(fname)
+        }
+    }# else
+    # {
+    #     cat("problems downloading from NCEP server\n")
+    # }
 }
+
 
 #' get ncdf from NCEP
 #' @param request_all is a data_frame obtained from def_request
@@ -37,11 +53,18 @@ get_nc <- function(request_all)
 #' obtain ncdf metadata, inclusing units
 #' @import dplyr
 #' @import ncdf4
+#' @importFrom R.utils gunzip
 #' @export
 get_nc_meta <- function(request,var)
 {
   requesti = request %>% filter(variable==var) %>% slice(1)
-  fname <- paste0(requesti$fname[1],'.',requesti$year[1],'.nc')
+  if(requesti$dataset=='gpcc')
+  {
+      fname <- paste0(requesti$fname[1],'_',requesti$year[1],'.nc')
+  } else
+  {
+      fname <- paste0(requesti$fname[1],'.',requesti$year[1],'.nc')
+  }
   if(file.exists(fname))
     {
       nc=nc_open(fname)
@@ -51,7 +74,7 @@ get_nc_meta <- function(request,var)
 }
 
 #' convert ncdf into data frame and save
-#' @importFrom lubridate ymd_hms hours as_datetime
+#' @importFrom lubridate ymd_hms hours as_datetime days
 #' @import dplyr
 #' @import ncdf4
 #' @import lwgeom
@@ -69,16 +92,27 @@ nc2rds <- function(request_all)
         DF <- list()
         for(i in seq(1,nrow(request)))
         {
-            fname <- paste0(request$fname[i],'.',request$year[i],'.nc')
+            if(request$dataset[i]=='gpcc')
+            {
+                fname <- paste0(request$fname[i],'_',request$year[i],'.nc')
+            } else
+            {
+                fname <- paste0(request$fname[i],'.',request$year[i],'.nc')
+            }
             if(file.exists(fname))
             {
                 nc=nc_open(fname)
                 tt=ncvar_get(nc,varid="time")
-                tformat= ymd_hms("1800-01-01 00:00:00")+hours(tt)
+                if(request$dataset[i]=='gpcc')
+                {
+                  tformat= ymd_hms(paste0(request$year[i],"-01-01 00:00:00"))+days(tt)
+                } else
+                {
+                  tformat= ymd_hms("1800-01-01 00:00:00")+hours(tt)
+                }
                 lat=ncvar_get(nc,varid="lat")
                 lon=ncvar_get(nc,varid="lon")
                 nlatlon <- def_spatial_domain(nc,request[i,])
-                var=lookup_ncep(v) %>% pull(variable)
                 x <- ncvar_get(nc,v,start=c(min(nlatlon[[1]]),min(nlatlon[[2]]),1),count=c(length(nlatlon[[1]]),length(nlatlon[[2]]),length(tformat)))
 
                 dimnames(x)[[1]] <- lon[nlatlon[[1]]]
@@ -89,7 +123,7 @@ nc2rds <- function(request_all)
                 colnames(xmelt) <- c("lon","lat","time","value")
 
 
-                DF[[i]] <- xmelt %>% mutate(time=as_datetime(time),var=var)
+                DF[[i]] <- xmelt %>% mutate(time=as_datetime(time),var=v,dataset=request$dataset[i])
                 nc_close(nc)
             } else {cat(fname," not found.")}
             df <- do.call("rbind",DF)
@@ -98,23 +132,6 @@ nc2rds <- function(request_all)
     }
 }
 
-# coor <- data.frame(l=12,r=14,b=50,t=53)
-# var <- c('temperature')
-# years <- c('2008')
-# library(scraping)
-# require(dplyr)
-# require(sf)
-# require(ncdf4)
-# require(lubridate)
-# require(tidyr)
-# require(reshape2)
-# coor
-# request <- def_request(coor,var,years)
-# request=request[1,]
-# v='air'
-# i=1
-#
-# nc=nc_open('~/proj/scraping/air.2m.gauss.2008.nc')
 
 #' defines spatial domain for polygon and points
 #' @importFrom sf st_join st_intersects st_coordinates st_as_sf st_set_crs st_distance st_geometry
@@ -155,27 +172,34 @@ def_spatial_domain <- function(nc,request)
 
 
 
-#' lookup variable names in NCEP
+#' lookup variable names in NCEP and GPCC
 #' @param var a meteorological variable name as a string such as 'temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'
 #' @importFrom dplyr filter
 #' @importFrom tibble data_frame
 #' @export
 lookup_var <- function(var)
 {
-    lookup <- data_frame(variable=c('temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'),varname=c('air','rhum','uwnd','vwnd','gflux','dswrf','prate')) %>%
+    lookup <- data_frame(variable=c('temperature',
+            'relative humidity',
+            'u wind',
+            'v wind',
+            'precipitation rate',
+            'soil heat flux',
+            'net radiation',
+            'gpcc precipitation',
+            'interpolation error',
+            'number of gauges'),
+        varname=c('air',
+            'rhum',
+            'uwnd',
+            'vwnd',
+            'prate',
+            'gflux',
+            'dswrf',
+            'precip',
+            'interpolation_error',
+            'numgauge')) %>%
         filter(variable %in% var)
-    return(lookup)
-}
-
-#' lookup NCEP variable names
-#' @param ncepname ncep variable name as a string such as 'air','rhum'
-#' @importFrom dplyr filter
-#' @importFrom tibble data_frame
-#' @export
-lookup_ncep <- function(ncepname)
-{
-    lookup <- data_frame(variable=c('temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'),varname=c('air','rhum','uwnd','vwnd','gflux','dswrf','prate')) %>%
-        filter(varname %in% ncepname)
     return(lookup)
 }
 
@@ -219,20 +243,50 @@ def_request <- function(coor,var,years)
 #' @export
 getPrefix <- function()
 {
-    prefix=data_frame(varname=c('air','rhum','uwnd','vwnd','prate','gflux','dswrf'),
-               prefix=c('ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/',
-                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
-                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
-                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
-                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
-                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
-                        'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/'),
-               fname=c('air.2m.gauss',
-                       'rhum.sig995',
-                       'uwnd.sig995',
-                       'vwnd.sig995',
-                       'prate.sfc.gauss',
-                       'gflux.sfc.gauss',
-                       'dswrf.sfc.gauss'))
+    prefix = data_frame(
+                varname=c(
+                  'air',
+                  'rhum',
+                  'uwnd',
+                  'vwnd',
+                  'prate',
+                  'gflux',
+                  'dswrf',
+                  'precip',
+                  'interpolation_error',
+                  'numgauge'),
+                dataset=c(
+                  'ncep',
+                  'ncep',
+                  'ncep',
+                  'ncep',
+                  'ncep',
+                  'ncep',
+                  'ncep',
+                  'gpcc',
+                  'gpcc',
+                  'gpcc'),
+                prefix=c(
+                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/',
+                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
+                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
+                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
+                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
+                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
+                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
+                  'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/',
+                  'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/',
+                  'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/'),
+                fname=c(
+                  'air.2m.gauss',
+                  'rhum.sig995',
+                  'uwnd.sig995',
+                  'vwnd.sig995',
+                  'prate.sfc.gauss',
+                  'gflux.sfc.gauss',
+                  'dswrf.sfc.gauss',
+                  'full_data_daily_v2018',
+                  'full_data_daily_v2018',
+                  'full_data_daily_v2018'))
     return(prefix)
 }
