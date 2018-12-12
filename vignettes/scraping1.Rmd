@@ -55,7 +55,7 @@ nc2rds(request)
 ### Print metadata
 ```{r, results='asis'}
 setwd('/home/delgado/proj/scraping')
-get_nc_meta(request,var)
+get_nc_meta(request,var[2])
 ```
 
 
