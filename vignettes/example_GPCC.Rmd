@@ -1,5 +1,5 @@
 ---
-title: "NCEP example"
+title: "GPCC example"
 author: "JM Delgado"
 date: "`r Sys.Date()`"
 output: rmarkdown::github_document

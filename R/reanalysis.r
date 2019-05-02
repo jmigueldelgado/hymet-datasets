@@ -73,6 +73,60 @@ get_nc_meta <- function(request,var)
 
 }
 
+
+
+#' get ncdf average spatial resolution for this domain
+#' @importFrom lubridate ymd_hms hours as_datetime days
+#' @import dplyr
+#' @import ncdf4
+#' @import lwgeom
+#' @importFrom sf st_coordinates st_as_sf st_set_crs st_distance
+#' @importFrom reshape2 melt
+#' @importFrom geosphere distGeo
+#' @export
+get_nc_spatial_res <- function(request_all)
+{
+  DF <- list()
+
+    for(v in distinct(as_data_frame(request_all),varname) %>% pull(varname))
+    {
+        request <- request_all %>%
+            filter(varname==v) %>%
+            slice(1)
+
+        if(request$dataset[1]=='gpcc')
+        {
+            fname <- paste0(request$fname[1],'_',request$year,'.nc')
+        } else
+        {
+            fname <- paste0(request$fname[1],'.',request$year,'.nc')
+        }
+        if(file.exists(fname))
+        {
+            nc=nc_open(fname)
+            lat=ncvar_get(nc,varid="lat")
+            lon=ncvar_get(nc,varid="lon")
+            nlatlon <- def_spatial_domain(nc,request[1,])
+            x <- ncvar_get(nc,v,start=c(median(nlatlon[[1]]),median(nlatlon[[2]]),1),count=c(2,2,1))
+            dimnames(x)[[1]] <- lon[nlatlon[[1]]]
+            dimnames(x)[[2]] <- lat[nlatlon[[2]]]
+
+            xmelt <- melt(x)
+            colnames(xmelt) <- c("lon","lat","value")
+            nc_close(nc)
+
+            DF[[v]]=data_frame(varname=v,dataset=request$dataset[1],zonal=max(xmelt$lon)-min(xmelt$lon),meridional=max(xmelt$lat)-min(xmelt$lat),x=distGeo(p1=c(median(xmelt$lon),max(xmelt$lat)),p2=c(median(xmelt$lon),min(xmelt$lat))),y=distGeo(p1=c(max(xmelt$lon),median(xmelt$lat)),p2=c(min(xmelt$lon),median(xmelt$lat))))
+          } else {cat(fname," not found.")}
+    }
+    res=do.call("rbind",DF)
+    return(left_join(request_all,res,by=c('varname','dataset')))
+}
+
+
+
+
+
+
 #' convert ncdf into data frame and save
 #' @importFrom lubridate ymd_hms hours as_datetime days
 #' @import dplyr
