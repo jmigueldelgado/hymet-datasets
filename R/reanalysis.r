@@ -60,8 +60,11 @@ get_nc_meta <- function(request,var)
   requesti = request %>% filter(variable==var) %>% slice(1)
   if(requesti$dataset=='gpcc')
   {
-      fname <- paste0(requesti$fname[1],'_',requesti$year[1],'.nc')
-  } else
+    fname <- paste0(requesti$fname[1],'_',requesti$year[1],'.nc')
+    } else if(requesti$dataset=='era5')
+    {
+      fname <- paste0(requesti$fname[1],'.nc')
+    } else
   {
       fname <- paste0(requesti$fname[1],'.',requesti$year[1],'.nc')
   }
@@ -95,8 +98,10 @@ nc2rds <- function(request_all)
             if(request$dataset[i]=='gpcc')
             {
                 fname <- paste0(request$fname[i],'_',request$year[i],'.nc')
-            } else
+            } else if(request$dataset=='era5')
             {
+              fname <- paste0(request$fname[1],'.nc')
+            } else            {
                 fname <- paste0(request$fname[i],'.',request$year[i],'.nc')
             }
             if(file.exists(fname))
@@ -106,6 +111,9 @@ nc2rds <- function(request_all)
                 if(request$dataset[i]=='gpcc')
                 {
                   tformat= ymd_hms(paste0(request$year[i],"-01-01 00:00:00"))+days(tt)
+                } else if (request$dataset[i]=='era5')
+                {
+                  tformat= ymd_hms("1900-01-01 00:00:00")+hours(tt)
                 } else
                 {
                   tformat= ymd_hms("1800-01-01 00:00:00")+hours(tt)
@@ -188,7 +196,8 @@ lookup_var <- function(var)
             'net radiation',
             'gpcc precipitation',
             'interpolation error',
-            'number of gauges'),
+            'number of gauges',
+            'era monthly wind'),
         varname=c('air',
             'rhum',
             'uwnd',
@@ -198,7 +207,8 @@ lookup_var <- function(var)
             'dswrf',
             'precip',
             'interpolation_error',
-            'numgauge')) %>%
+            'numgauge',
+            'ws10m')) %>%
         filter(variable %in% var)
     return(lookup)
 }
@@ -254,7 +264,8 @@ getPrefix <- function()
                   'dswrf',
                   'precip',
                   'interpolation_error',
-                  'numgauge'),
+                  'numgauge',
+                  'ws10m'),
                 dataset=c(
                   'ncep',
                   'ncep',
@@ -265,7 +276,8 @@ getPrefix <- function()
                   'ncep',
                   'gpcc',
                   'gpcc',
-                  'gpcc'),
+                  'gpcc',
+                  'era5'),
                 prefix=c(
                   'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/',
                   'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
@@ -276,7 +288,8 @@ getPrefix <- function()
                   'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
                   'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/',
                   'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/',
-                  'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/'),
+                  'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/',
+                  NA),
                 fname=c(
                   'air.2m.gauss',
                   'rhum.sig995',
@@ -287,6 +300,7 @@ getPrefix <- function()
                   'dswrf.sfc.gauss',
                   'full_data_daily_v2018',
                   'full_data_daily_v2018',
-                  'full_data_daily_v2018'))
+                  'full_data_daily_v2018',
+                  'H_ERAI_ECMW_T159_WS'))
     return(prefix)
 }
