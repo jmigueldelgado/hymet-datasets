@@ -340,9 +340,9 @@ getPrefix <- function()
                   'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
                   'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
                   'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
-                  'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/',
-                  'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/',
-                  'ftp://ftp.dwd.de/pub/data/gpcc/full_data_daily_V2018/',
+                  'https://opendata.dwd.de/climate_environment/GPCC/full_data_daily_V2018/',
+                  'https://opendata.dwd.de/climate_environment/GPCC/full_data_daily_V2018/',
+                  'https://opendata.dwd.de/climate_environment/GPCC/full_data_daily_V2018/',
                   NA),
                 fname=c(
                   'air.2m.gauss',
