@@ -4,10 +4,10 @@
 \alias{lookup_var}
 \title{lookup variable names in NCEP and GPCC}
 \usage{
-lookup_var(var)
+lookup_var(my_var, my_dataset)
 }
 \arguments{
-\item{var}{a meteorological variable name as a string such as 'temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'}
+\item{my_var}{a meteorological variable name as a string such as 'temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'}
 }
 \description{
 lookup variable names in NCEP and GPCC

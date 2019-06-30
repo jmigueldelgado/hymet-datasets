@@ -1,55 +1,50 @@
-## this works:
+## this works, but make sure you copy .ecmwfapirc to your home directory (check 3.2 here: https://dominicroye.github.io/en/2018/access-to-climate-reanalysis-data-from-r/#connection-and-download-with-the-ecmwf-api):
 Sys.setenv(RETICULATE_PYTHON='/home/delgado/local/miniconda3/envs/ecmwf/bin/python')
 library(reticulate)
 py_config()
 ecmwf <- import('ecmwfapi')
 
-server = ecmwf$ECMWFDataServer
+server = ecmwf$ECMWFDataServer(verbose=TRUE)
 query = r_to_py(list(
   class='ei',
   dataset='interim',
-  date='2018-01-01/to/2018-03-31',
+  date='2018-01-01/to/2018-01-02',
   expver='1',
   grid='0.125/0.125',
   levtype='sfc',
-  param='167.128', # air temperature (2m)
-  area='45/-10/30/5', # N/W/S/E
+  param='167.128', # air temperature (2m), check parameter db in https://apps.ecmwf.int/codes/grib/param-db
+  area='31/4/30/5', # N/W/S/E
   step='0',
   stream='oper',
-  time='00/06/12/18',
+  time='00/12',
   type='an',
   format='netcdf',
-  target='ta201801-03.nc'
+  target='era_test.nc'
   ))
+
 
 server$retrieve(query)
 
-require(sf)
-require(ncdf4)
-require(dplyr)
-require(lubridate)
-require(tidyr)
-require(ggplot2)
+v=get(load('./data/vartable.RData'))
 
-nc=nc_open('ta201801-03.nc')
+library(scraping)
 
-lat=ncvar_get(nc,'latitude')
-lon=ncvar_get(nc,'longitude')
-dim(lat);
-dim(lon);
 
-t=ncvar_get(nc,'time')
+my_dataset='GPCC'
+my_var='precipitation'
 
-ncatt_get(nc,'time')
+    require(dplyr)
 
-timestamp=as_datetime(c(t*60*60),origin='1900-01-01')
 
-data=ncvar)get(nc,'t2m')
+vartable=tibble(variable='2 metre temperature',varname='165.128',dataset='era-interim') %>%
+  bind_rows(v,.) %>% mutate(dataset=tolower(dataset))
 
-nc_close(nc)
+  devtools::use_data(vartable,pkg='.')
+  usethis::use_data(vartable,pkg='scraping')
 
-## does not work:
-library(reticulate)
-use_condaenv(condaenv = 'ecmwf', conda='/home/delgado/local/miniconda3/bin/conda')
-py_config()
-ecmwf <- import('ecmwfapi')
+  vartable
+
+
+
+
+getwd()

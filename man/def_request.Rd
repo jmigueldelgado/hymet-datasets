@@ -4,7 +4,7 @@
 \alias{def_request}
 \title{define request}
 \usage{
-def_request(coor, var, years)
+def_request(coor, var, dataset, years)
 }
 \value{
 request

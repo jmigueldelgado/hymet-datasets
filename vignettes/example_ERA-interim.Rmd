@@ -1,5 +1,5 @@
 ---
-title: "GPCC example"
+title: "ERA interim example"
 author: "JM Delgado"
 date: "`r Sys.Date()`"
 output: rmarkdown::github_document
@@ -15,7 +15,11 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+## Requirements for using the ECMWF API
 
+1. In order to access the ECMWF API you need to [register your own username](https://apps.ecmwf.int/registration/), [agree to licence agreement](https://apps.ecmwf.int/datasets/licences/general/) and [obtain key](https://api.ecmwf.int/v1/key/) from ECMWF before proceeding.
+
+2. You should install conda, create an environment for the ECMWF API client and install `ecmwf-api-client` from a channel e.g. __conda-forge__.
 
 ## Define request, download and convert from ncdf to data frame and save
 `var` should be a meteorological variable name as a string. Variables are available from two datasets. From NCEP such as: `temperature`,`relative humidity`,`u wind`,`v wind`,`soil heat flux`,`net radiation` or `precipitation rate`. And from [GPCC](http://dx.doi.org/10.5676/DWD_GPCC/FD_D_V2018_100) such as `gpcc precipitation` and `number of gauges`.
@@ -36,11 +40,12 @@ coor <- data.frame(l=12,r=14,b=50,t=53)
 
 Choose years and variables
 ```{r, results='asis'}
-var <- c('number of gauges','gpcc precipitation')
-years <- c('2004')
+var <- c('soil heat flux','precipitation rate')
+years <- c('2000')
 setwd('/home/delgado/proj/scraping')
-request <- def_request(coor,var,years)
+request <- def_request(coor,var,'ncep',years)
 knitr::kable(request)
+
 
 ```
 
@@ -48,6 +53,7 @@ knitr::kable(request)
 ```{r eval=FALSE}
 
 get_nc(request)
+
 nc2rds(request)
 ```
 
@@ -55,6 +61,7 @@ nc2rds(request)
 ```{r, results='asis'}
 setwd('/home/delgado/proj/scraping')
 get_nc_meta(request,var[2])
+get_nc_spatial_res(request)
 ```
 
 

@@ -4,38 +4,95 @@
 #' @export
 download_nc <- function(request)
 {
+
+    not_yet_downloaded <- function(fname)
+    {
+      if(file.exists(fname))
+      {
+        cat(fname," already exists: not downloading\n")
+        return(FALSE)
+      } else
+      {
+        cat("atempting to download ",fname,'\n')
+        return(TRUE)
+      }
+    }
+
+
     if(request$dataset=='gpcc')
     {
-        fname <- paste0(request$fname[1],'_',request$year[1],'.nc.gz')
-        fpath <- paste0(request$prefix[1],fname)
-    } else
-    {
-        fname <- paste0(request$fname[1],'.',request$year[1],'.nc')
-        fpath <- paste0(request$prefix[1],fname)
-    }
-    if(!file.exists(fname) & !file.exists(paste0(request$fname[1],'_',request$year[1],'.nc')))
-    {
-        curl_download(fpath,file.path(getwd(),fname))
+      fname <- paste0(request$fname[1],'_',request$year[1],'.nc.gz')
+      remote_path <- paste0(request$prefix[1],fname)
+      if(not_yet_downloaded(fname)) curl_download(remote_path,file.path(getwd(),fname))
+    } else if (request$dataset=='ncep'){
+      fname <- paste0(request$fname[1],'_',request$year[1],'.nc')
+      remote_path <- paste0(request$prefix[1],fname)
+      if(not_yet_downloaded(fname)) curl_download(remote_path,file.path(getwd(),fname))
+    } else if(request$dataset=='era-interim')
 
-        cat("downloaded ",fpath,'\n')
-    } else
     {
-      cat(fname," already exists: not downloading\n")
+
+
     }
 
-    if(file.exists(fname))
+
+    if(file.exists(fname_gz))
     {
-        if(request$dataset=='gpcc' & !file.exists(paste0(request$fname[1],'_',request$year[1],'.nc')))
-        {
-            cat(" unpacking ",fname,"\n")
-            gunzip(fname)
-        }
-    }# else
-    # {
-    #     cat("problems downloading from NCEP server\n")
-    # }
+        cat(" unpacking ",fname,"\n")
+        gunzip(fname_gz)
+    }
 }
 
+
+
+
+#' download netcdf from ecmwf using ecmwfapi with python/reticulate. miniconda3 should be installed!
+#'
+#' @importFrom reticulate py_config import r_to_py
+#' @importFrom sf st_buffer st_bbox
+
+## this works, but make sure you copy .ecmwfapirc to your home directory (check 3.2 here: https://dominicroye.github.io/en/2018/access-to-climate-reanalysis-data-from-r/#connection-and-download-with-the-ecmwf-api):
+
+download_with_python <- function(request)
+{
+  cat('Make sure you installed conda and the required environment previous to calling this function! Please  check the vignette in https://github.com/jmigueldelgado/scraping/blob/master/vignettes/example_era-interim.Rmd\n')
+  sys=Sys.info()
+  if(sys['sysname']!='Linux')
+  {
+    cat('Sorry, but downloading from the ECMWF API currently only works from Linux.\n')
+  }
+
+  if(!file.exists('~/.ecmwfapirc')) cat('Please add your user information in .ecmwfapirc to your home directory.')
+  conda_location = readline("Please enter the absolute location of your conda installation:")
+  conda_env = readline("Please enter the name of the conda environment containing the ecmwfapi python package:")
+  Sys.setenv(RETICULATE_PYTHON=paste0(conda_location,'/miniconda3/envs/',conda_env,'/bin/python'))
+  py_config()
+  ecmwf <- import('ecmwfapi')
+  gridsize=0.125
+  bb = st_buffer(request,grid) %>%
+    st_bbox
+  server = ecmwf$ECMWFDataServer(verbose=TRUE)
+  query = r_to_py(list(
+    class='ei',
+    dataset='interim',
+    date=paste0(request$year,'-01-01/to/',request$year,'-12-31'),
+    expver='1',
+    grid=paste0(gridsize,'/',gridsize),
+    levtype='sfc',
+    param=request$varname, # air temperature (2m), check parameter db in https://apps.ecmwf.int/codes/grib/param-db
+    area=paste0(bb[4],'/',bb[1],'/',bb[2],'/',bb[3]), # N/W/S/E
+    step='0',
+    stream='oper',
+    time='00/12',
+    type='an',
+    format='netcdf',
+    target=paste0(request$fname,'_',request$year,'.nc')
+    ))
+
+  server$retrieve(query)
+
+
+}
 
 #' get ncdf from NCEP
 #' @param request_all is a data_frame obtained from def_request
@@ -235,36 +292,15 @@ def_spatial_domain <- function(nc,request)
 
 
 #' lookup variable names in NCEP and GPCC
-#' @param var a meteorological variable name as a string such as 'temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'
-#' @importFrom dplyr filter
+#' @param my_var a meteorological variable name as a string such as 'temperature','relative humidity','u wind','v wind','soil heat flux','net radiation','precipitation rate'
+#' @importFrom dplyr filter %>%
 #' @importFrom tibble data_frame
 #' @export
-lookup_var <- function(var)
+lookup_var <- function(my_var,my_dataset)
 {
-    lookup <- data_frame(variable=c('temperature',
-            'relative humidity',
-            'u wind',
-            'v wind',
-            'precipitation rate',
-            'soil heat flux',
-            'net radiation',
-            'gpcc precipitation',
-            'interpolation error',
-            'number of gauges',
-            'era monthly wind'),
-        varname=c('air',
-            'rhum',
-            'uwnd',
-            'vwnd',
-            'prate',
-            'gflux',
-            'dswrf',
-            'precip',
-            'interpolation_error',
-            'numgauge',
-            'ws10m')) %>%
-        filter(variable %in% var)
-    return(lookup)
+  lookup <- vartable %>% filter(dataset==my_dataset) %>%
+      filter(grepl(my_var,.$variable))
+  return(lookup)
 }
 
 #' define request
@@ -273,10 +309,10 @@ lookup_var <- function(var)
 #' @importFrom tidyr crossing
 #' @return request
 #' @export
-def_request <- function(coor,var,years)
+def_request <- function(coor,var,dataset,years)
 {
 
-    lookup <- lookup_var(var) %>%
+    lookup <- lookup_var(var,dataset) %>%
         left_join(.,getPrefix())
 
     if('l' %in% colnames(coor) & 'r' %in% colnames(coor)& 't' %in% colnames(coor)& 'b' %in% colnames(coor))
