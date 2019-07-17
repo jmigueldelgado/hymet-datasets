@@ -28,10 +28,9 @@ download_nc <- function(request)
       fname <- paste0(request$fname[1],'_',request$year[1],'.nc')
       remote_path <- paste0(request$prefix[1],fname)
       if(not_yet_downloaded(fname)) curl_download(remote_path,file.path(getwd(),fname))
-    } else if(request$dataset=='era-interim')
-
+    } else if(request$dataset=='era5')
     {
-
+      download_with_python()
 
     }
 
@@ -55,41 +54,47 @@ download_nc <- function(request)
 
 download_with_python <- function(request)
 {
-  cat('Make sure you installed conda and the required environment previous to calling this function! Please  check the vignette in https://github.com/jmigueldelgado/scraping/blob/master/vignettes/example_era-interim.Rmd\n')
+
+  library(scraping)
+
+  def_request()
+
+  cat('Make sure you installed conda and the required environment previous to calling this function! Please  check the vignette in https://github.com/jmigueldelgado/scraping/blob/master/vignettes/example_era5.Rmd\n')
   sys=Sys.info()
   if(sys['sysname']!='Linux')
   {
-    cat('Sorry, but downloading from the ECMWF API currently only works from Linux.\n')
+    cat('Sorry, but currently we only support Linux \n')
   }
 
-  if(!file.exists('~/.ecmwfapirc')) cat('Please add your user information in .ecmwfapirc to your home directory.')
+  if(!file.exists('~/.cdsapirc')) cat('Please add your user information in .cdsapirc to your home directory.')
   conda_location = readline("Please enter the absolute location of your conda installation:")
   conda_env = readline("Please enter the name of the conda environment containing the ecmwfapi python package:")
-  Sys.setenv(RETICULATE_PYTHON=paste0(conda_location,'/miniconda3/envs/',conda_env,'/bin/python'))
+  Sys.setenv(RETICULATE_PYTHON=paste0(conda_location,'/envs/',conda_env,'/bin/python'))
   py_config()
-  ecmwf <- import('ecmwfapi')
+  cds <- import('cdsapi')
   gridsize=0.125
   bb = st_buffer(request,grid) %>%
     st_bbox
-  server = ecmwf$ECMWFDataServer(verbose=TRUE)
+
+  server = cds$ECMWFDataServer(verbose=TRUE)
   query = r_to_py(list(
-    class='ei',
-    dataset='interim',
-    date=paste0(request$year,'-01-01/to/',request$year,'-12-31'),
+    class='ea',
     expver='1',
-    grid=paste0(gridsize,'/',gridsize),
+    stream='oper',
+    type='an',
     levtype='sfc',
     param=request$varname, # air temperature (2m), check parameter db in https://apps.ecmwf.int/codes/grib/param-db
-    area=paste0(bb[4],'/',bb[1],'/',bb[2],'/',bb[3]), # N/W/S/E
-    step='0',
-    stream='oper',
+    date=paste0(request$year,'-01-01/to/',request$year,'-12-31'),
     time='00/12',
-    type='an',
-    format='netcdf',
-    target=paste0(request$fname,'_',request$year,'.nc')
+    step='0',
+    grid=paste0(gridsize,'/',gridsize),
+    area=paste0(bb[4],'/',bb[1],'/',bb[2],'/',bb[3]), # N/W/S/E
+    format='netcdf'
     ))
 
-  server$retrieve(query)
+
+  c=cds$Client()
+  c$retrieve('reanalysis-era5-pressure-levels',query,target=paste0(request$fname,'_',request$year,'.nc'))
 
 
 }

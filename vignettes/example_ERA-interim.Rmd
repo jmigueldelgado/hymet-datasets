@@ -40,6 +40,10 @@ coor <- data.frame(l=12,r=14,b=50,t=53)
 
 Choose years and variables
 ```{r, results='asis'}
+vartable$dataset[which(vartable$dataset=='era-interim')] <- 'era5'
+
+getwd()
+
 var <- c('soil heat flux','precipitation rate')
 years <- c('2000')
 setwd('/home/delgado/proj/scraping')
