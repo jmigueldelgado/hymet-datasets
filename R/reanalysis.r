@@ -4,7 +4,6 @@
 #' @export
 download_nc <- function(request)
 {
-
     not_yet_downloaded <- function(fname)
     {
       if(file.exists(fname))
@@ -49,15 +48,10 @@ download_nc <- function(request)
 #'
 #' @importFrom reticulate py_config import r_to_py
 #' @importFrom sf st_buffer st_bbox
-
-## this works, but make sure you copy .ecmwfapirc to your home directory (check 3.2 here: https://dominicroye.github.io/en/2018/access-to-climate-reanalysis-data-from-r/#connection-and-download-with-the-ecmwf-api):
-
+#' @export
 download_with_python <- function(request)
 {
-
-  library(scraping)
-
-  def_request()
+  ## this works, but make sure you copy .ecmwfapirc to your home directory (check 3.2 here: https://dominicroye.github.io/en/2018/access-to-climate-reanalysis-data-from-r/#connection-and-download-with-the-ecmwf-api):
 
   cat('Make sure you installed conda and the required environment previous to calling this function! Please  check the vignette in https://github.com/jmigueldelgado/scraping/blob/master/vignettes/example_era5.Rmd\n')
   sys=Sys.info()
@@ -71,7 +65,7 @@ download_with_python <- function(request)
   conda_env = readline("Please enter the name of the conda environment containing the ecmwfapi python package:")
   Sys.setenv(RETICULATE_PYTHON=paste0(conda_location,'/envs/',conda_env,'/bin/python'))
   py_config()
-  cds <- import('cdsapi')
+  cds <-  ('cdsapi')
   gridsize=0.125
   bb = st_buffer(request,grid) %>%
     st_bbox
@@ -93,8 +87,8 @@ download_with_python <- function(request)
     ))
 
 
-  c=cds$Client()
-  c$retrieve('reanalysis-era5-pressure-levels',query,target=paste0(request$fname,'_',request$year,'.nc'))
+      c=cds$Client()
+      c$retrieve('reanalysis-era5-pressure-levels',query,target=paste0(request$fname,'_',request$year,'.nc'))
 
 
 }
@@ -113,8 +107,8 @@ get_nc <- function(request_all)
 }
 
 #' obtain ncdf metadata, inclusing units
-#' @import dplyr
-#' @import ncdf4
+#' @importFrom dplyr %>% filter slice
+#' @importFrom ncdf4 nc_open ncatt_get
 #' @importFrom R.utils gunzip
 #' @export
 get_nc_meta <- function(request,var)
@@ -141,11 +135,8 @@ get_nc_meta <- function(request,var)
 
 
 #' get ncdf average spatial resolution for this domain
-#' @importFrom lubridate ymd_hms hours as_datetime days
-#' @import dplyr
-#' @import ncdf4
-#' @import lwgeom
-#' @importFrom sf st_coordinates st_as_sf st_set_crs st_distance
+#' @importFrom dplyr left_join distinct filter pull slice %>% data_frame mutate
+#' @importFrom ncdf4 nc_open ncvar_get nc_close
 #' @importFrom reshape2 melt
 #' @importFrom geosphere distGeo
 #' @export
@@ -194,10 +185,8 @@ get_nc_spatial_res <- function(request_all)
 
 #' convert ncdf into data frame and save
 #' @importFrom lubridate ymd_hms hours as_datetime days
-#' @import dplyr
-#' @import ncdf4
-#' @import lwgeom
-#' @importFrom sf st_coordinates st_as_sf st_set_crs st_distance
+#' @importFrom dplyr left_join distinct filter pull slice %>% data_frame as_data_frame mutate
+#' @importFrom ncdf4 nc_open ncvar_get nc_close
 #' @importFrom reshape2 melt
 #' @export
 nc2rds <- function(request_all)
@@ -303,6 +292,7 @@ def_spatial_domain <- function(nc,request)
 #' @export
 lookup_var <- function(my_var,my_dataset)
 {
+  data(vartable)
   lookup <- vartable %>% filter(dataset==my_dataset) %>%
       filter(grepl(my_var,.$variable))
   return(lookup)
