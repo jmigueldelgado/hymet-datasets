@@ -27,18 +27,12 @@ download_nc <- function(request)
       fname <- paste0(request$fname[1],'_',request$year[1],'.nc')
       remote_path <- paste0(request$prefix[1],fname)
       if(not_yet_downloaded(fname)) curl_download(remote_path,file.path(getwd(),fname))
-    } else if(request$dataset=='era5')
+    } else if(request$dataset=='reanalysis-era5-complete')
     {
-      download_with_python()
+      download_with_python(request)
 
     }
 
-
-    if(file.exists(fname_gz))
-    {
-        cat(" unpacking ",fname,"\n")
-        gunzip(fname_gz)
-    }
 }
 
 
@@ -61,16 +55,20 @@ download_with_python <- function(request)
   }
 
   if(!file.exists('~/.cdsapirc')) cat('Please add your user information in .cdsapirc to your home directory.')
-  conda_location = readline("Please enter the absolute location of your conda installation:")
-  conda_env = readline("Please enter the name of the conda environment containing the ecmwfapi python package:")
+  conda_location = readline("Please enter the absolute location of your conda installation (for default press return):")
+  if(conda_location=='') conda_location = '~/local/miniconda3'
+
+  conda_env = readline("Please enter the name of the conda environment containing the ecmwfapi python package  (for default press return):")
+  if(conda_env=='') conda_env = 'ecmwf'
+
   Sys.setenv(RETICULATE_PYTHON=paste0(conda_location,'/envs/',conda_env,'/bin/python'))
   py_config()
-  cds <-  ('cdsapi')
+  cds <- import('cdsapi')
   gridsize=0.125
-  bb = st_buffer(request,grid) %>%
-    st_bbox
+  bb = sf::st_buffer(request,gridsize) %>%
+    sf::st_bbox(.)
 
-  server = cds$ECMWFDataServer(verbose=TRUE)
+  client=cds$Client()
   query = r_to_py(list(
     class='ea',
     expver='1',
@@ -87,9 +85,7 @@ download_with_python <- function(request)
     ))
 
 
-      c=cds$Client()
-      c$retrieve('reanalysis-era5-pressure-levels',query,target=paste0(request$fname,'_',request$year,'.nc'))
-
+  client$retrieve(request$dataset,query,target=paste0(request$fname,'_',request$year,'.nc'))
 
 }
 

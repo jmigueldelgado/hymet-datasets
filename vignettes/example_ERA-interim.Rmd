@@ -28,58 +28,16 @@ __It is important to start the python instance with `reticulate` before loading 
 
 ### Define request
 ```{r, results='asis'}
-library(reticulate)
-library(dplyr)
+library(scraping)
 
-coor <- data.frame(lon=c(13.40,13.91),lat=c(52.52,52.90))
+coor <- data.frame(lon=c(13.40),lat=c(52.52))
 var= '2 metre temperature'
 years <- c('2000')
 setwd('/home/delgado/proj/scraping')
-```
 
-### Define conda environment containing the cdsapi
+request <- scraping::def_request(coor,var,'reanalysis-era5-complete',years)
 
-```{r, results='asis'}
+request_i <- dplyr::distinct(request,varname,year,.keep_all=TRUE)
 
-conda_location = '~/local/miniconda3'
-conda_env = 'ecmwf'
-Sys.setenv(RETICULATE_PYTHON=paste0(conda_location,'/envs/',conda_env,'/bin/python'))
-py_config()
-cds <- import('cdsapi')
-client=cds$Client()
-
-request <- scraping::def_request(coor,var,'era5',years)
-# knitr::kable(request)
-gridsize=2.5
-bb = sf::st_buffer(request,gridsize) %>%
-  sf::st_bbox()
-
-query = list(
-  class='ea',
-  expver='1',
-  stream='oper',
-  type='an',
-  param=request$varname[1], # air temperature (2m), check parameter db in https://apps.ecmwf.int/codes/grib/param-db
-  levtype='sfc',
-  date=paste0(request$year[1],'-01-01'),
-  time='00/12',
-  grid=paste0(gridsize,'/',gridsize),
-  area=paste0(bb[4],'/',bb[1],'/',bb[2],'/',bb[3])
-  )
-
-#
-# query=list(class= 'ea',
-#     expver= '1',
-#     stream= 'moda',
-#     type= 'an',
-#     param= '167.128',
-#     levtype='sfc',
-#     date= '2018-01-01',
-#     decade= '2010')
-
-
-client$retrieve('reanalysis-era5-complete',query,target='./mydownload_test2.grib')
-
-
-
+get_nc(request_i)
 ```
