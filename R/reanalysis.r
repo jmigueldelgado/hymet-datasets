@@ -65,8 +65,18 @@ download_with_python <- function(request)
   py_config()
   cds <- import('cdsapi')
   gridsize=0.125
-  bb = sf::st_buffer(request,gridsize) %>%
-    sf::st_bbox(.)
+
+  # if(attr(geom$geometry,"class")[1]==sfc_POLYGON)
+  # {
+    bb=st_bbox(geom)
+    # l=bb$xmin[1]
+    # r=bb$xmax[1]
+    # b=bb$ymin[1]
+    # t=bb$ymax[1]
+  # }
+
+  # bb = sf::st_buffer(request,gridsize) %>%
+  #   sf::st_bbox(.)
 
   client=cds$Client()
   query = r_to_py(list(
@@ -296,32 +306,15 @@ lookup_var <- function(my_var,my_dataset)
 
 #' define request
 #' @importFrom dplyr left_join
-#' @importFrom sf st_as_sf st_set_crs st_polygon st_sfc st_sf
+#' @importFrom sf st_as_sf st_set_crs st_polygon st_sfc st_sf st_bbox
 #' @importFrom tidyr crossing
 #' @return request
 #' @export
-def_request <- function(coor,var,dataset,years)
+def_request <- function(geom,var,dataset,years)
 {
 
     lookup <- lookup_var(var,dataset) %>%
         left_join(.,getPrefix())
-
-    if('l' %in% colnames(coor) & 'r' %in% colnames(coor)& 't' %in% colnames(coor)& 'b' %in% colnames(coor))
-    {
-      l=coor$l[1]
-      r=coor$r[1]
-      t=coor$t[1]
-      b=coor$b[1]
-      geom=list(cbind(c(l,r,r,l,l),c(b,b,t,t,b))) %>%
-        st_polygon %>%
-        st_sfc %>%
-        st_sf %>%
-        st_set_crs(.,4326)
-    } else {
-      geom <- data.frame(longitude=coor[,1],latitude=coor[,2]) %>%
-          st_as_sf(.,coords=c(1,2)) %>%
-          st_set_crs(.,4326)
-    }
 
     y <- data.frame(year=years)
 

@@ -29,13 +29,26 @@ __It is important to start the python instance with `reticulate` before loading 
 ### Define request
 ```{r, results='asis'}
 library(scraping)
+library(dplyr)
+l=13.40
+r=13.80
+b=52.20
+t=52.80
 
-coor <- data.frame(lon=c(13.40),lat=c(52.52))
+geom=list(cbind(c(l,r,r,l,l),c(b,b,t,t,b))) %>%
+        sf::st_polygon(.) %>%
+        sf::st_sfc(.) %>%
+        sf::st_sf(.) %>%
+        sf::st_set_crs(.,4326)
+
+str(geom)
+sf::st_bbox(geom)
+
 var= '2 metre temperature'
 years <- c('2000')
 setwd('/home/delgado/proj/scraping')
 
-request <- scraping::def_request(coor,var,'reanalysis-era5-complete',years)
+request <- scraping::def_request(geom,var,'reanalysis-era5-complete',years)
 
 request_i <- dplyr::distinct(request,varname,year,.keep_all=TRUE)
 
