@@ -23,6 +23,25 @@ knitr::opts_chunk$set(
 
 __It is important to start the python instance with `reticulate` before loading any other package!!__
 
+## Add parameter to `vartable`
+
+Check [the parameter database of ECMWF](https://apps.ecmwf.int/codes/grib/param-db) and update the existing table with the necessary parameter. Then please be so kind and do a pull request on [my repo](https://github.com/jmigueldelgado/scraping)
+
+```{r, results='asis'}
+library(scraping)
+library(dplyr)
+
+vartext='U component of wind'
+varcode='131'
+if((vartable %>% filter(variable== vartext) %>% nrow)==0)
+  {
+    vartable = vartable %>%
+      bind_rows(.,data_frame(variable=vartext,varname=varcode,dataset="reanalysis-era5-complete"))
+    save(vartable,file='data/vartable.rda')
+  }
+
+```
+
 ## Define request, download and convert from ncdf to data frame and save
 `var` should be a meteorological variable name as a string. Variables are available from two datasets. From NCEP such as: `temperature`,`relative humidity`,`u wind`,`v wind`,`soil heat flux`,`net radiation` or `precipitation rate`. And from [GPCC](http://dx.doi.org/10.5676/DWD_GPCC/FD_D_V2018_100) such as `gpcc precipitation` and `number of gauges`.
 
