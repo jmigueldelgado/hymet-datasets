@@ -47,7 +47,7 @@ if((vartable %>% filter(variable== vartext) %>% nrow)==0)
 
 ### Define request
 ```{r, results='asis'}
-# library(scraping)
+library(scraping)
 library(dplyr)
 l=13.40
 r=13.80
@@ -60,97 +60,17 @@ geom=list(cbind(c(l,r,r,l,l),c(b,b,t,t,b))) %>%
         sf::st_sf(.) %>%
         sf::st_set_crs(.,4326)
 
-var= '2 metre temperature'
+var= 'temperature'
 years <- c('2000')
 setwd('/home/delgado/proj/scraping')
-library(scraping)
-
-vartable
-
-request <- scraping::def_request(var,geom,years,'reanalysis-era5-complete',level,levtype)
-request_i <- dplyr::distinct(request,varname,year,.keep_all=TRUE)
-request_i$fname='mydownload'
-request_i$prefix='mydownload'
 
 
+request <- scraping::def_request(var,geom,years,'reanalysis-era5-complete',levtype='sfc') %>% dplyr::distinct(request,varname,year,.keep_all=TRUE)
 
-  bb=sf::st_buffer(geom,0.125) %>%
-    sf::st_bbox()
-  request=request_i
-
-
-  # query = r_to_py(list(
-  #   class='ea',
-  #   expver='1',
-  #   stream='oper',
-  #   type='an',
-  #   levtype='sfc',
-  #   param=request$varname,
-  #   date=paste0(request$year,'-01-01/to/',request$year,'-12-31'),
-  #   time='00/12',
-  #   step='0',
-  #   # grid=paste0(gridsize,'/',gridsize),
-  #   area=paste0(bb[4],'/',bb[1],'/',bb[2],'/',bb[3]), # N/W/S/E
-  #   format='netcdf'
-  #   ))
-  library(reticulate)
-
-  conda_location = readline("Please enter the absolute location of your conda installation (for default press return):")
-  if(conda_location=='') conda_location = '~/local/miniconda3'
-
-  conda_env = readline("Please enter the name of the conda environment containing the ecmwfapi python package  (for default press return):")
-  if(conda_env=='') conda_env = 'ecmwf'
-
-  Sys.setenv(RETICULATE_PYTHON=paste0(conda_location,'/envs/',conda_env,'/bin/python'))
-  py_config()
-  cds <- import('cdsapi')
-  client=cds$Client()
-
-### model level
-
-  query = r_to_py(list(
-    class='ea',
-    expver='1',
-    stream='oper',
-    type='an',
-    levtype='ml',
-    param='130',
-    levelist= '1/10/50/100',
-    date='2013-01-01',
-    time='00/to/23/by/6'
-    ))
-
-### pressure level
-
-    query = r_to_py(list(
-      class='ea',
-      expver='1',
-      stream='oper',
-      type='an',
-      levtype='pl',
-      param='130',
-      levelist= '100/800',
-      date='2013-01-01',
-      time='00/to/23/by/6'
-      ))
+request$fname='mydownload'
+request$prefix='mydownload'
 
 
-### surface
+get_nc(request)
 
-      query = r_to_py(list(
-        class='ea',
-        expver='1',
-        stream='oper',
-        type='an',
-        levtype='sfc',
-        param='167', # 2m temperature
-        date='2013-01-01',
-        time='00/to/23/by/6'
-        ))
-
-
-  client$retrieve('reanalysis-era5-complete',query,target='temp_test.grib')
-
-
-# get_nc(request_i)
   ```

@@ -69,21 +69,22 @@ download_with_python <- function(request)
   bb=st_bbox(geom)
 
   client=cds$Client()
-  query = r_to_py(list(
+  r_query=list(
     class='ea',
     expver='1',
     stream='oper',
     type='an',
-    levtype='sfc',
-    param=request$varname,
-    date=paste0(request$year,'-01-01/to/',request$year,'-12-31'),
-    time='00/12',
-    step='0',
+    levtype=request$levtype,
+    param=request$param, # 2m temperature
     grid=paste0(gridsize,'/',gridsize),
     area=paste0(bb[4],'/',bb[1],'/',bb[2],'/',bb[3]), # N/W/S/E
+    date=paste0(request$year,'-01-01/to/',request$year,'-12-31'),
+    time='00/to/23/by/6',
     format='netcdf'
-    ))
+    )
+  if(request$levtype != 'sfc') r_query[["levelist"]] = '100/800'
 
+  query = r_to_py(r_query)
 
   client$retrieve(request$dataset,query,target=paste0(request$fname,'_',request$year,'.nc'))
 
@@ -302,14 +303,14 @@ lookup_var <- function(my_var,my_dataset)
 #' @export
 def_request <- function(var,geom,years,dataset,level=NA,levtype=NA)
 {
-    if(dataset=='reanalysis-era5-complete' & levtype==NA)
+    if(dataset=='reanalysis-era5-complete' & is.na(levtype))
     {
       cat('Sorry but you must define level type as ml, pl or sfc (model level, pressure level or surface level) and level respectively\n')
     }
     lookup <- lookup_var(var,dataset)
 
     y <- data.frame(year=years)
-
-    request <- crossing(y,lookup,geom) %>% st_as_sf
+    levs=data.frame(level=level,levtype=levtype)
+    request <- crossing(y,lookup,levs,geom) %>% st_as_sf
     return(request)
 }
