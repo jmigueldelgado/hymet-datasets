@@ -70,6 +70,29 @@ request <- scraping::def_request(var,geom,years,'reanalysis-era5-complete',levty
 request$fname='mydownload'
 request$prefix='mydownload'
 
+cds=config_python()
+client=cds$Client()
+gridsize=0.125
+
+bb=sf::st_bbox(geom)
+
+r_query=list(
+  class='ea',
+  expver='1',
+  stream='oper',
+  type='an',
+  levtype=as.character(request$levtype),
+  param=request$param, # 2m temperature
+  # grid=paste0(gridsize,'/',gridsize),
+  # area=paste0(bb[4],'/',bb[1],'/',bb[2],'/',bb[3]), # N/W/S/E
+  date=paste0(request$year,'-01-01/to/',request$year,'-12-31'),
+  time='00/to/23/by/6'
+  )
+
+r_query
+query = reticulate::r_to_py(r_query)
+
+client$retrieve(request$dataset,query,target=paste0(request$fname,'_',request$year,'.grib'))
 
 get_nc(request)
 

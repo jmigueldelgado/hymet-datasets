@@ -35,15 +35,11 @@ download_nc <- function(request)
 
 }
 
-
-
-
-#' download netcdf from ecmwf using ecmwfapi with python/reticulate. miniconda3 should be installed!
+#' configure python with reticulate
 #'
 #' @importFrom reticulate py_config import r_to_py
-#' @importFrom sf st_bbox
 #' @export
-download_with_python <- function(request)
+config_python <- function()
 {
   ## this works, but make sure you copy .ecmwfapirc to your home directory (check 3.2 here: https://dominicroye.github.io/en/2018/access-to-climate-reanalysis-data-from-r/#connection-and-download-with-the-ecmwf-api):
 
@@ -64,6 +60,19 @@ download_with_python <- function(request)
   Sys.setenv(RETICULATE_PYTHON=paste0(conda_location,'/envs/',conda_env,'/bin/python'))
   py_config()
   cds <- import('cdsapi')
+  return(cds)
+}
+
+
+#' download netcdf from ecmwf using ecmwfapi with python/reticulate. miniconda3 should be installed!
+#'
+#' @importFrom reticulate py_config import r_to_py
+#' @importFrom sf st_bbox
+#' @export
+download_with_python <- function(request)
+{
+
+  cds=config_python()
   gridsize=0.125
 
   bb=st_bbox(geom)
@@ -82,7 +91,7 @@ download_with_python <- function(request)
     time='00/to/23/by/6',
     format='netcdf'
     )
-  if(request$levtype != 'sfc') r_query[["levelist"]] = '100/800'
+  if(request$levtype != 'sfc') r_query[["levelist"]] = as.character(request$levelist)
 
   query = r_to_py(r_query)
 
