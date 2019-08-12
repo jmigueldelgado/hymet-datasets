@@ -1,5 +1,5 @@
 
-#' Variable names for reanalysis datasets
+#' Variable names for reanalysis datasets.  Check ECMWF's parameter db in https://apps.ecmwf.int/codes/grib/param-db
 #'
 #' @docType data
 #' @usage data(vartable)

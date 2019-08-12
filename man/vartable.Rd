@@ -3,8 +3,8 @@
 \docType{data}
 \name{vartable}
 \alias{vartable}
-\title{Variable names for reanalysis datasets}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 12 rows and 3 columns.}
+\title{Variable names for reanalysis datasets.  Check ECMWF's parameter db in https://apps.ecmwf.int/codes/grib/param-db}
+\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 12 rows and 5 columns.}
 \source{
 GPCC,NCEP,ERA
 }
@@ -12,7 +12,7 @@ GPCC,NCEP,ERA
 data(vartable)
 }
 \description{
-Variable names for reanalysis datasets
+Variable names for reanalysis datasets.  Check ECMWF's parameter db in https://apps.ecmwf.int/codes/grib/param-db
 }
 \references{
 none

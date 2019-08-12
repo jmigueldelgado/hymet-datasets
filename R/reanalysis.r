@@ -41,7 +41,7 @@ download_nc <- function(request)
 #' download netcdf from ecmwf using ecmwfapi with python/reticulate. miniconda3 should be installed!
 #'
 #' @importFrom reticulate py_config import r_to_py
-#' @importFrom sf st_buffer st_bbox
+#' @importFrom sf st_bbox
 #' @export
 download_with_python <- function(request)
 {
@@ -66,17 +66,7 @@ download_with_python <- function(request)
   cds <- import('cdsapi')
   gridsize=0.125
 
-  # if(attr(geom$geometry,"class")[1]==sfc_POLYGON)
-  # {
-    bb=st_bbox(geom)
-    # l=bb$xmin[1]
-    # r=bb$xmax[1]
-    # b=bb$ymin[1]
-    # t=bb$ymax[1]
-  # }
-
-  # bb = sf::st_buffer(request,gridsize) %>%
-  #   sf::st_bbox(.)
+  bb=st_bbox(geom)
 
   client=cds$Client()
   query = r_to_py(list(
@@ -85,7 +75,7 @@ download_with_python <- function(request)
     stream='oper',
     type='an',
     levtype='sfc',
-    param=request$varname, # air temperature (2m), check parameter db in https://apps.ecmwf.int/codes/grib/param-db
+    param=request$varname,
     date=paste0(request$year,'-01-01/to/',request$year,'-12-31'),
     time='00/12',
     step='0',
@@ -310,71 +300,16 @@ lookup_var <- function(my_var,my_dataset)
 #' @importFrom tidyr crossing
 #' @return request
 #' @export
-def_request <- function(geom,var,dataset,years)
+def_request <- function(var,geom,years,dataset,level=NA,levtype=NA)
 {
-
-    lookup <- lookup_var(var,dataset) %>%
-        left_join(.,getPrefix())
+    if(dataset=='reanalysis-era5-complete' & levtype==NA)
+    {
+      cat('Sorry but you must define level type as ml, pl or sfc (model level, pressure level or surface level) and level respectively\n')
+    }
+    lookup <- lookup_var(var,dataset)
 
     y <- data.frame(year=years)
 
     request <- crossing(y,lookup,geom) %>% st_as_sf
     return(request)
-}
-
-#' get prefix
-#' importFrom tibble data_frame
-#' @export
-getPrefix <- function()
-{
-    prefix = data_frame(
-                varname=c(
-                  'air',
-                  'rhum',
-                  'uwnd',
-                  'vwnd',
-                  'prate',
-                  'gflux',
-                  'dswrf',
-                  'precip',
-                  'interpolation_error',
-                  'numgauge',
-                  'ws10m'),
-                dataset=c(
-                  'ncep',
-                  'ncep',
-                  'ncep',
-                  'ncep',
-                  'ncep',
-                  'ncep',
-                  'ncep',
-                  'gpcc',
-                  'gpcc',
-                  'gpcc',
-                  'era5'),
-                prefix=c(
-                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/',
-                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
-                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
-                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/',
-                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
-                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
-                  'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/',
-                  'https://opendata.dwd.de/climate_environment/GPCC/full_data_daily_V2018/',
-                  'https://opendata.dwd.de/climate_environment/GPCC/full_data_daily_V2018/',
-                  'https://opendata.dwd.de/climate_environment/GPCC/full_data_daily_V2018/',
-                  NA),
-                fname=c(
-                  'air.2m.gauss',
-                  'rhum.sig995',
-                  'uwnd.sig995',
-                  'vwnd.sig995',
-                  'prate.sfc.gauss',
-                  'gflux.sfc.gauss',
-                  'dswrf.sfc.gauss',
-                  'full_data_daily_v2018',
-                  'full_data_daily_v2018',
-                  'full_data_daily_v2018',
-                  'H_ERAI_ECMW_T159_WS'))
-    return(prefix)
 }
