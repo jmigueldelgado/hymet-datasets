@@ -25,10 +25,10 @@ __It is important to start the python instance with `reticulate` before loading 
 
 ## Add parameter to `vartable`
 
-Check [the parameter database of ECMWF](https://apps.ecmwf.int/codes/grib/param-db) and update the existing table with the necessary parameter. Then please be so kind and do a pull request on [my repo](https://github.com/jmigueldelgado/scraping)
+Check [the parameter database of ECMWF](https://apps.ecmwf.int/codes/grib/param-db) and update the existing table with the necessary parameter. Then please be so kind and do a pull request on [my repo](https://github.com/jmigueldelgado/hymet-datasets)
 
 ```{r, results='asis'}
-library(scraping)
+library(hymet-datasets)
 library(dplyr)
 
 vartext='U component of wind'
@@ -47,7 +47,7 @@ if((vartable %>% filter(variable== vartext) %>% nrow)==0)
 
 ### Define request
 ```{r, results='asis'}
-library(scraping)
+library(hymet-datasets)
 library(dplyr)
 l=13.40
 r=13.80
@@ -62,10 +62,10 @@ geom=list(cbind(c(l,r,r,l,l),c(b,b,t,t,b))) %>%
 
 var= 'temperature'
 years <- c('2000')
-setwd('/home/delgado/proj/scraping')
+setwd('/home/delgado/proj/hymet-datasets')
 
 
-request <- scraping::def_request(var,geom,years,'reanalysis-era5-complete',levtype='sfc') %>% dplyr::distinct(request,varname,year,.keep_all=TRUE)
+request <- hymet-datasets::def_request(var,geom,years,'reanalysis-era5-complete',levtype='sfc') %>% dplyr::distinct(request,varname,year,.keep_all=TRUE)
 
 request$fname='mydownload'
 request$prefix='mydownload'

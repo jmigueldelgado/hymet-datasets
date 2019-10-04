@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 ### Define request
 ```{r, results='asis'}
-library(scraping)
+library(hymet-datasets)
 ```
 
 Insert coordinates as points:
@@ -38,7 +38,7 @@ Choose years and variables
 ```{r, results='asis'}
 var <- c('soil heat flux','precipitation rate')
 years <- c('2000')
-setwd('/home/delgado/proj/scraping')
+setwd('/home/delgado/proj/hymet-datasets')
 request <- def_request(coor,var,years)
 knitr::kable(request)
 
@@ -54,7 +54,7 @@ nc2rds(request)
 
 ### Print metadata
 ```{r, results='asis'}
-setwd('/home/delgado/proj/scraping')
+setwd('/home/delgado/proj/hymet-datasets')
 get_nc_meta(request,var[2])
 get_nc_spatial_res(request)
 ```
@@ -63,14 +63,14 @@ get_nc_spatial_res(request)
 ## Load rds data examples
 
 ```{r, results='asis'}
-library(scraping)
+library(hymet-datasets)
 library(dplyr)
 library(lubridate)
 lookup=lookup_var(request$variable)
 
 lookup %>% knitr::kable()
 
-myproj='/home/delgado/proj/scraping/'
+myproj='/home/delgado/proj/hymet-datasets/'
 
 df1=readRDS(paste0(myproj,lookup$varname[1],'.rds'))
 df2=readRDS(paste0(myproj,lookup$varname[2],'.rds'))
