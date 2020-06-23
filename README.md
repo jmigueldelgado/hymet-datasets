@@ -1,6 +1,22 @@
 # hymet-datasets
 A collection of simple scripts that were used in the past for scraping meteorological data from the internet.
 
+Data is coming from here:
+
+|varname             |dataset                  |prefix                                                                   |fname                 |variable            |
+|:-------------------|:------------------------|:------------------------------------------------------------------------|:---------------------|:-------------------|
+|air                 |ncep                     |ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface_gauss/           |air.2m.gauss          |temperature         |
+|rhum                |ncep                     |ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/                 |rhum.sig995           |relative humidity   |
+|uwnd                |ncep                     |ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/                 |uwnd.sig995           |u wind              |
+|vwnd                |ncep                     |ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/                 |vwnd.sig995           |v wind              |
+|prate               |ncep                     |ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/ |prate.sfc.gauss       |precipitation rate  |
+|gflux               |ncep                     |ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/ |gflux.sfc.gauss       |soil heat flux      |
+|dswrf               |ncep                     |ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.dailyavgs/surface_gauss/ |dswrf.sfc.gauss       |net radiation       |
+|precip              |gpcc                     |https://opendata.dwd.de/climate_environment/GPCC/full_data_daily_V2018/  |full_data_daily_v2018 |precipitation       |
+|interpolation_error |gpcc                     |https://opendata.dwd.de/climate_environment/GPCC/full_data_daily_V2018/  |full_data_daily_v2018 |interpolation error |
+|numgauge            |gpcc                     |https://opendata.dwd.de/climate_environment/GPCC/full_data_daily_V2018/  |full_data_daily_v2018 |number of gauges    |
+
+
 ## Download and process NCEP reanalysis
 
 Something like this will work:
