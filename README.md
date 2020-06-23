@@ -1,4 +1,4 @@
-# scraping
+# hymet-datasets
 A collection of simple scripts that were used in the past for scraping meteorological data from the internet.
 
 ## Download and process NCEP reanalysis
