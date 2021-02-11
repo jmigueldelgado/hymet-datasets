@@ -36,11 +36,11 @@ for i in range(len(geoms)):
     single_list = reduce(lambda x,y: x+y, double_list)
 
     g=ee.Geometry.Point(single_list)
-    feature = ee.Feature(g).set("peakname",name)
+    feature = ee.Feature(g).set("peakname",name[i])
     features.append(feature)
 eeFeatureCollection = ee.FeatureCollection(features)
 
-chosen_variable='u_component_of_wind_10m'
+chosen_variable='v_component_of_wind_10m'
 start_date="1981-01-01"
 end_date="2020-10-31"
 # //IMPORT COLLECTION
@@ -74,6 +74,6 @@ def fill(img, ini):
 # // Iterates over the ImageCollection
 newft = ee.FeatureCollection(era5_pre.iterate(fill, ft))
 
-task=ee.batch.Export.table.toDrive(collection=newft,description=chosen_variable,fileNamePrefix=chosen_variable)
+task=ee.batch.Export.table.toDrive(collection=newft,description=chosen_variable,fileNamePrefix=chosen_variable+'_'+start_date+'_'+end_date)
 task.start()
 task.status()
