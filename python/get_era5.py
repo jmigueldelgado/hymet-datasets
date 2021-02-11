@@ -7,55 +7,24 @@ import json
 import pandas
 from geopandas import GeoDataFrame
 import geopandas
+import numpy as np
+from functools import reduce
+import IPython
+
+# Get the csv with peak location
 df=pandas.read_csv('/home/delgado/proj/hymet-datasets/data/peak_coordinates_revised3_WGS84.csv')
 df_clean=df[(df.LON>-361) & (df.LAT>-91)]
 geometry = [Point(xy) for xy in zip(df_clean.LON, df_clean.LAT)]
 crs = {'init': 'epsg:4326'} #http://www.spatialreference.org/ref/epsg/2263/
 geo_df = GeoDataFrame(df_clean, crs=crs, geometry=geometry)
 
+# Authenticate with google account
 
 ee.Authenticate()
 ee.Initialize()
 
+# Create `ee.FeatureCollection`
 
-# extracting several pixel values
-
-# https://gis.stackexchange.com/questions/265392/extracting-pixel-values-by-points-and-converting-to-table-in-google-earth-engine
-
-area_of_interest=ee.Geometry(geopandas.GeoSeries(geo_df.geometry[0]).__geo_interface__['features'][0]['geometry'])
-
-def calcMean(img):
-  # gets the mean NDVI for the area in this img
-  mean = img.reduceRegion(ee.Reducer.mean(), area_of_interest, 3000).get('u_component_of_wind_10m')
-  # sets the date and the mean value as a property of the image
-  return img.set('date', img.date().format()).set('mean', mean)
-
-col = ee.ImageCollection("ECMWF/ERA5_LAND/MONTHLY").filterDate("2020-01-01T01:00:00","2020-11-30T00:00:00").map(calcMean)
-
-# Reduces the images properties to a list of lists
-values = col.reduceColumns(ee.Reducer.toList(2), ['date', 'mean']).values().get(0)
-
-# Type casts the result into a List
-lista = ee.List(values)
-#
-# # Converts the list of lists to a Dictionary
-# means = ee.Dictionary(lista.flatten())
-
-
-
-
-
-# Map reduce means after geom and data filtering:
-# https://stackoverflow.com/questions/42237278/google-earthengine-getting-time-series-for-reduceregion
-
-
-# yet another option for several points using reduce first():
-# https://stackoverflow.com/questions/42742742/extract-pixel-values-by-points-and-convert-to-a-table-in-google-earth-engine?newreg=02a799d032314818a92facfe624f5975
-
-
-import numpy as np
-from functools import reduce
-import IPython
 g = [i for i in geo_df.geometry]
 name = [i for i in geo_df.PKNAME]
 features=[]
@@ -69,7 +38,6 @@ for i in range(len(g)):
     feature = ee.Feature(g).set("peakname",name)
     features.append(feature)
 eeFeatureCollection = ee.FeatureCollection(features)
-
 
 
 # //IMPORT COLLECTION
