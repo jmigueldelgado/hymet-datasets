@@ -25,11 +25,12 @@ ee.Initialize()
 
 # Create `ee.FeatureCollection`
 
-g = [i for i in geo_df.geometry]
+geoms = [i for i in geo_df.geometry]
 name = [i for i in geo_df.PKNAME]
 features=[]
-for i in range(len(g)):
-    x,y = g[i].coords.xy
+for i in range(len(geoms)):
+    # IPython.embed()
+    x,y = geoms[i].coords.xy
     cords = np.dstack((x,y)).tolist()
     double_list = reduce(lambda x,y: x+y, cords)
     single_list = reduce(lambda x,y: x+y, double_list)
@@ -39,10 +40,12 @@ for i in range(len(g)):
     features.append(feature)
 eeFeatureCollection = ee.FeatureCollection(features)
 
-
+chosen_variable='u_component_of_wind_10m'
+start_date="1981-01-01"
+end_date="2020-10-31"
 # //IMPORT COLLECTION
 # era5_pre = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY').filterDate("1981-01-01T00:00:00","2020-11-01T00:00:00").select('u_component_of_wind_10m')
-era5_pre = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY').filterDate("1981-01-01T00:00:00","1981-11-01T00:00:00").select('u_component_of_wind_10m')
+era5_pre = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY').filterDate(start_date,end_date).select(chosen_variable)
 
 
 # .filterDate(ee.Date.fromYMD(2013,12,13), ee.Date.fromYMD(2014,1,15))
@@ -54,8 +57,8 @@ def fill(img, ini):
     # // type cast
     inift = ee.FeatureCollection(ini)
 
-    # // gets the values for the points in the current img
-    ft2 = img.reduceRegions(eeFeatureCollection, ee.Reducer.first(),3000)
+    # // gets the values for the points in the current img. 10000 m is approximately the resolution of the dataset
+    ft2 = img.reduceRegions(eeFeatureCollection, ee.Reducer.first(),10000)
 
     # // gets the date of the img
     date = img.date().format()
@@ -71,6 +74,6 @@ def fill(img, ini):
 # // Iterates over the ImageCollection
 newft = ee.FeatureCollection(era5_pre.iterate(fill, ft))
 
-task=ee.batch.Export.table.toDrive(collection=newft,description='u_wind_timeseries',fileNamePrefix='u_wind_timeseries')
+task=ee.batch.Export.table.toDrive(collection=newft,description=chosen_variable,fileNamePrefix=chosen_variable)
 task.start()
 task.status()
