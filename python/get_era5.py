@@ -38,6 +38,8 @@ for i in range(len(geoms)):
     g=ee.Geometry.Point(single_list)
     feature = ee.Feature(g).set("peakname",name[i])
     features.append(feature)
+
+# defines a collection of points to intersect with raster
 eeFeatureCollection = ee.FeatureCollection(features)
 
 chosen_variable='v_component_of_wind_10m'

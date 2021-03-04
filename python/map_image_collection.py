@@ -41,42 +41,49 @@ for i in range(len(geoms)):
     features.append(feature)
 eeFeatureCollection = ee.FeatureCollection(features)
 
-chosen_variable='v_component_of_wind_10m'
+
+# map
+
+u_component='u_component_of_wind_10m'
+v_component='v_component_of_wind_10m'
 start_date="1981-01-01"
-end_date="2020-10-31"
+end_date="1981-05-31"
 # //IMPORT COLLECTION
 # era5_pre = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY').filterDate("1981-01-01T00:00:00","2020-11-01T00:00:00").select('u_component_of_wind_10m')
-era5_pre = ee.ImageCollection('ECMWF/ERA5_LAND/HOURLY').filterDate(start_date,end_date).select(chosen_variable)
-
-var modis = ee.ImageCollection('MODIS/MOD13A1');
-
-var months = ee.List.sequence(1, 12);
-
-// Group by month, and then reduce within groups by mean();
-// the result is an ImageCollection with one image for each
-// month.
-var byMonth = ee.ImageCollection.fromImages(
-      months.map(function (m) {
-        return modis.filter(ee.Filter.calendarRange(m, m, 'month'))
-                    .select(1).mean()
-                    .set('month', m);
-}));
+era5_pre = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY').filterDate(start_date,end_date).select([u_component,v_component])
 
 
+# map over collection to obtain intensities
+def intensity(image):
+    """A function to compute intensity."""
+    W=image.expression('float((b("u_component_of_wind_10m")**2 + b("v_component_of_wind_10m")**2)**0.5)').rename('W')
+    return image.addBands(W)
+
+era5_w=era5_pre.map(intensity)
 
 
+# // Empty Collection to fill
+ft = ee.FeatureCollection(ee.List([]))
+
+def fill(img, ini):
+    # // type cast
+    inift = ee.FeatureCollection(ini)
+
+    # // gets the values for the points in the current img.
+    # Since we expect only one value per point we use the reducer .first().
+    # 10000 m is approximately the resolution of the dataset
+    ft2 = img.reduceRegions(eeFeatureCollection, ee.Reducer.first(),10000)
+
+    # // gets the date of the img
+    date = img.date().format()
+
+    # // writes the date in each feature
+    def mapfunc(ft):
+        return ft.set("date", date)
+    ft3 = ft2.map(mapfunc)
+
+    # // merges to the FeatureCollections
+    return inift.merge(ft3)
 
 
-var imageCollection = ee.ImageCollection("LANDSAT/LT05/C01/T1");
-var months = ee.List.sequence(1, 12);
-
-var composites = ee.ImageCollection.fromImages(months.map(function(m) {
-  var filtered = imageCollection.filter(ee.Filter.calendarRange({
-    start: m,
-    field: 'month'
-  }));
-  var composite = ee.Algorithms.Landsat.simpleComposite(filtered);
-  return composite.normalizedDifference(['B4', 'B3']).rename('NDVI')
-      .set('month', m);
-}));
-print(composites);
+newft = ee.FeatureCollection(era5_w.iterate(fill, ft))
