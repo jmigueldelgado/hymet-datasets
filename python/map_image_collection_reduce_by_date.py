@@ -49,7 +49,8 @@ eeFeatureCollection = ee.FeatureCollection(features)
 u_component='u_component_of_wind_10m'
 v_component='v_component_of_wind_10m'
 start_date="1981-01-01T00:00:00"
-end_date="2020-11-01T00:00:00"
+end_date="1990-01-01T00:00:00"
+# end_date="2020-11-01T00:00:00"
 # //IMPORT COLLECTION
 # era5_pre = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY').filterDate("1981-01-01T00:00:00","2020-11-01T00:00:00").select('u_component_of_wind_10m')
 
