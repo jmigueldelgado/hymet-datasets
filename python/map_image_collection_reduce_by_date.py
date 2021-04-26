@@ -1,5 +1,29 @@
 # to run in ipython in conda env gee
 
+
+
+
+
+
+##### export each raster as geotiff. start with daily mean. eventually daily max.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import ee
 import fiona
 from shapely.geometry import shape, polygon, mapping, Point
@@ -49,7 +73,7 @@ eeFeatureCollection = ee.FeatureCollection(features)
 u_component='u_component_of_wind_10m'
 v_component='v_component_of_wind_10m'
 start_date="1981-01-01T00:00:00"
-end_date="1990-01-01T00:00:00"
+end_date="1981-01-03T00:00:00"
 # end_date="2020-11-01T00:00:00"
 # //IMPORT COLLECTION
 # era5_pre = ee.ImageCollection('ECMWF/ERA5_LAND/MONTHLY').filterDate("1981-01-01T00:00:00","2020-11-01T00:00:00").select('u_component_of_wind_10m')
@@ -124,16 +148,17 @@ def fill(img, ini):
     # // gets the values for the points in the current img. 10000 m is approximately the resolution of the dataset
     ft2 = img.select('W_max').reduceRegions(eeFeatureCollection, ee.Reducer.first(),10000)
 
-    # rename new field "first" to "W"
-
     # // gets the date of the img
     date = img.date().format()
 
     # // writes the date in each feature
     def mapfunc(ft):
         return ft.set("date", date)
-    ft3 = ft2.map(mapfunc)
 
+    ft3 = ft2.map(mapfunc)
+    # string1=ee.String(ee.Feature(ft3).get('peakname'))
+    # indexString=date.cat(string1)
+# .set({'system:index': indexString, 'ID': indexString})
     # // merges to the FeatureCollections
     return inift.merge(ft3)
 
