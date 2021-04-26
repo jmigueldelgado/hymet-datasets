@@ -11,7 +11,7 @@ import xarray as xr
 from urllib.request import urlopen
 
 # Get the csv with peak location
-df=pandas.read_csv('/home/delgado/proj/hymet-datasets/data/peak_coordinates_revised3_WGS84.csv')
+df=pandas.read_csv('./data/peak_coordinates_revised3_WGS84.csv')
 df_clean=df[(df.LON>-361) & (df.LAT>-91)]
 geometry = [Point(xy) for xy in zip(df_clean.LON, df_clean.LAT)]
 crs = {'init': 'epsg:4326'} #http://www.spatialreference.org/ref/epsg/2263/
@@ -25,11 +25,11 @@ import cdsapi
 c = cdsapi.Client()
 
 first_year = 1979
-last_year=1979
+last_year = 1979
 # last_year = 2020
 
-year=2018
-month=1
+# year=2018
+# month=1
 
 # from here: https://confluence.ecmwf.int/display/CKB/Climate+Data+Store+%28CDS%29+documentation#ClimateDataStore(CDS)documentation-Efficiencytips
 
@@ -78,5 +78,4 @@ for year in range(first_year, last_year + 1):
             'format': 'netcdf',
         }
 
-        fl=c.retrieve('reanalysis-era5-single-levels',request)
-        fl.download("{year}-{month:02d}.nc".format(year=year, month=month))
+        c.retrieve('reanalysis-era5-single-levels',request,"{year}-{month:02d}.nc".format(year=year, month=month))
