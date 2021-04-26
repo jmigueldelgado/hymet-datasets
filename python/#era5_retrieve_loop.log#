@@ -1,0 +1,20 @@
+ls
+/bin/bash: /home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py: $HOME/local/miniconda3/envs/era5/bin/python3: bad interpreter: No such file or directory
+Traceback (most recent call last):
+  File "/home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py", line 15, in <module>
+    df=pandas.read_csv('$HOME/proj/hymet-datasets/data/peak_coordinates_revised3_WGS84.csv')
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 610, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 462, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 819, in __init__
+    self._engine = self._make_engine(self.engine)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 1050, in _make_engine
+    return mapping[engine](self.f, **self.options)  # type: ignore[call-arg]
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 1867, in __init__
+    self._open_handles(src, kwds)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 1362, in _open_handles
+    self.handles = get_handle(
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/common.py", line 642, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: '$HOME/proj/hymet-datasets/data/peak_coordinates_revised3_WGS84.csv'

@@ -1,0 +1,85 @@
+/bin/bash: /home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py: $HOME/local/miniconda3/envs/era5/bin/python3: bad interpreter: No such file or directory
+Traceback (most recent call last):
+  File "/home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py", line 15, in <module>
+    df=pandas.read_csv('$HOME/proj/hymet-datasets/data/peak_coordinates_revised3_WGS84.csv')
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 610, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 462, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 819, in __init__
+    self._engine = self._make_engine(self.engine)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 1050, in _make_engine
+    return mapping[engine](self.f, **self.options)  # type: ignore[call-arg]
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 1867, in __init__
+    self._open_handles(src, kwds)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/parsers.py", line 1362, in _open_handles
+    self.handles = get_handle(
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pandas/io/common.py", line 642, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: '$HOME/proj/hymet-datasets/data/peak_coordinates_revised3_WGS84.csv'
+  File "/home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py", line 13
+    from os import os.path.expanduser
+                     ^
+SyntaxError: invalid syntax
+/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pyproj/crs/crs.py:53: FutureWarning: '+init=<authority>:<code>' syntax is deprecated. '<authority>:<code>' is the preferred initialization method. When making the change, be mindful of axis order changes: https://pyproj4.github.io/pyproj/stable/gotchas.html#axis-order-changes-in-proj-6
+  return _prepare_from_string(" ".join(pjargs))
+/home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py:21: UserWarning: Geometry is in a geographic CRS. Results from 'buffer' are likely incorrect. Use 'GeoSeries.to_crs()' to re-project geometries to a projected CRS before this operation.
+
+  bounds=geo_df.buffer(0.5).total_bounds
+Traceback (most recent call last):
+  File "/home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py", line 27, in <module>
+    c = cdsapi.Client()
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/cdsapi/api.py", line 301, in __init__
+    raise Exception("Missing/incomplete configuration file: %s" % (dotrc))
+Exception: Missing/incomplete configuration file: /home/delgado/.cdsapirc
+/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pyproj/crs/crs.py:53: FutureWarning: '+init=<authority>:<code>' syntax is deprecated. '<authority>:<code>' is the preferred initialization method. When making the change, be mindful of axis order changes: https://pyproj4.github.io/pyproj/stable/gotchas.html#axis-order-changes-in-proj-6
+  return _prepare_from_string(" ".join(pjargs))
+/home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py:21: UserWarning: Geometry is in a geographic CRS. Results from 'buffer' are likely incorrect. Use 'GeoSeries.to_crs()' to re-project geometries to a projected CRS before this operation.
+
+  bounds=geo_df.buffer(0.5).total_bounds
+2021-04-26 15:12:04,212 INFO Welcome to the CDS
+2021-04-26 15:12:04,213 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+2021-04-26 15:12:04,443 INFO Request is queued
+2021-04-26 15:12:05,482 INFO Request is running
+2021-04-26 15:18:22,989 INFO Request is completed
+2021-04-26 15:18:22,990 INFO Downloading https://download-0004.copernicus-climate.eu/cache-compute-0004/cache/data8/adaptor.mars.internal-1619442725.0014465-16163-5-d289a041-08d8-480a-8512-6c1397909661.nc to $HOME/1979-01.nc (5.3M)
+  0%|          | 0.00/5.25M [00:00<?, ?B/s]                                           =========================================================
+Downloading 1979-01
+Traceback (most recent call last):
+  File "/home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py", line 83, in <module>
+    c.retrieve('reanalysis-era5-single-levels',request,"$HOME/{year}-{month:02d}.nc".format(year=year, month=month))
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/cdsapi/api.py", line 350, in retrieve
+    result.download(target)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/cdsapi/api.py", line 173, in download
+    return self._download(self.location, self.content_length, target)
+  File "/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/cdsapi/api.py", line 132, in _download
+    with open(target, mode) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '$HOME/1979-01.nc'
+/home/delgado/local/miniconda3/envs/era5/lib/python3.9/site-packages/pyproj/crs/crs.py:53: FutureWarning: '+init=<authority>:<code>' syntax is deprecated. '<authority>:<code>' is the preferred initialization method. When making the change, be mindful of axis order changes: https://pyproj4.github.io/pyproj/stable/gotchas.html#axis-order-changes-in-proj-6
+  return _prepare_from_string(" ".join(pjargs))
+/home/delgado/proj/hymet-datasets/python/era5_retrieve_loop.py:21: UserWarning: Geometry is in a geographic CRS. Results from 'buffer' are likely incorrect. Use 'GeoSeries.to_crs()' to re-project geometries to a projected CRS before this operation.
+
+  bounds=geo_df.buffer(0.5).total_bounds
+2021-04-26 15:25:03,810 INFO Welcome to the CDS
+2021-04-26 15:25:03,811 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+2021-04-26 15:25:03,878 INFO Request is completed
+2021-04-26 15:25:03,878 INFO Downloading https://download-0004.copernicus-climate.eu/cache-compute-0004/cache/data8/adaptor.mars.internal-1619442725.0014465-16163-5-d289a041-08d8-480a-8512-6c1397909661.nc to /home/delgado/1979-01.nc (5.3M)
+  0%|          | 0.00/5.25M [00:00<?, ?B/s]  3%|▎         | 171k/5.25M [00:00<00:03, 1.68MB/s] 21%|██        | 1.09M/5.25M [00:00<00:00, 5.90MB/s] 62%|██████▏   | 3.26M/5.25M [00:00<00:00, 13.2MB/s]                                                    2021-04-26 15:25:04,458 INFO Download rate 9.1M/s
+2021-04-26 15:25:04,557 INFO Welcome to the CDS
+2021-04-26 15:25:04,558 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+2021-04-26 15:25:04,723 INFO Request is queued
+2021-04-26 15:25:54,324 INFO Request is running
+2021-04-26 15:31:23,262 INFO Request is completed
+2021-04-26 15:31:23,262 INFO Downloading https://download-0004.copernicus-climate.eu/cache-compute-0004/cache/data1/adaptor.mars.internal-1619443549.6566732-18685-20-fb170c96-af76-464c-ae75-3bf68938e3e6.nc to /home/delgado/1979-02.nc (4.7M)
+  0%|          | 0.00/4.74M [00:00<?, ?B/s]  4%|▎         | 180k/4.74M [00:00<00:02, 1.66MB/s] 17%|█▋        | 808k/4.74M [00:00<00:01, 4.07MB/s] 59%|█████▉    | 2.82M/4.74M [00:00<00:00, 11.5MB/s] 93%|█████████▎| 4.43M/4.74M [00:00<00:00, 13.5MB/s]                                                    2021-04-26 15:31:23,859 INFO Download rate 8M/s
+2021-04-26 15:31:23,931 INFO Welcome to the CDS
+2021-04-26 15:31:23,932 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+2021-04-26 15:31:24,042 INFO Request is queued
+2021-04-26 15:34:15,628 INFO Request is running
+2021-04-26 15:39:42,852 INFO Request is completed
+2021-04-26 15:39:42,853 INFO Downloading https://download-0007.copernicus-climate.eu/cache-compute-0007/cache/data4/adaptor.mars.internal-1619444011.8707666-10957-11-e48c931b-e65c-4cc0-b140-cf0771819c47.nc to /home/delgado/1979-03.nc (5.3M)
+  0%|          | 0.00/5.25M [00:00<?, ?B/s]  3%|▎         | 179k/5.25M [00:00<00:03, 1.63MB/s] 16%|█▌        | 872k/5.25M [00:00<00:01, 4.38MB/s] 40%|███▉      | 2.08M/5.25M [00:00<00:00, 7.58MB/s] 62%|██████▏   | 3.24M/5.25M [00:00<00:00, 8.84MB/s] 84%|████████▎ | 4.39M/5.25M [00:00<00:00, 9.93MB/s]                                                    2021-04-26 15:39:43,652 INFO Download rate 6.6M/s
+2021-04-26 15:39:43,724 INFO Welcome to the CDS
+2021-04-26 15:39:43,724 INFO Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+2021-04-26 15:39:43,788 INFO Request is queued
+2021-04-26 15:46:02,260 INFO Request is running
