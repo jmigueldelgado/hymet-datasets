@@ -26,8 +26,8 @@ import cdsapi
 
 c = cdsapi.Client()
 
-first_year = 1979
-last_year = 1979
+first_year = 1980
+last_year = 2020
 # last_year = 2020
 
 # year=2018
@@ -75,7 +75,7 @@ for year in range(first_year, last_year + 1):
                 '21:00', '22:00', '23:00',
             ],
             'area': [
-                bounds[2],bounds[1],bounds[0],bounds[3],
+                bounds[1],bounds[0],bounds[3],bounds[2],
             ],
             'format': 'netcdf',
         }
