@@ -1,3 +1,4 @@
+
 import fiona
 from shapely.geometry import shape, polygon, mapping, Point
 import json
@@ -9,9 +10,10 @@ from functools import reduce
 import IPython
 import xarray as xr
 from urllib.request import urlopen
+import os
 
 # Get the csv with peak location
-df=pandas.read_csv('./data/peak_coordinates_revised3_WGS84.csv')
+df=pandas.read_csv(os.path.join(os.path.expanduser('~'),'proj/hymet-datasets/data/peak_coordinates_revised3_WGS84.csv'))
 df_clean=df[(df.LON>-361) & (df.LAT>-91)]
 geometry = [Point(xy) for xy in zip(df_clean.LON, df_clean.LAT)]
 crs = {'init': 'epsg:4326'} #http://www.spatialreference.org/ref/epsg/2263/
@@ -23,8 +25,8 @@ import cdsapi
 
 c = cdsapi.Client()
 
-first_year = 1979
-last_year = 1979
+first_year = 1980
+last_year = 2020
 # last_year = 2020
 
 # year=2018
@@ -78,4 +80,4 @@ for year in range(first_year, last_year + 1):
         }
 bounds
 
-        c.retrieve('reanalysis-era5-single-levels',request,"{year}-{month:02d}.nc".format(year=year, month=month))
+        c.retrieve('reanalysis-era5-single-levels',request,'/home/delgado/'+"{year}-{month:02d}.nc".format(year=year, month=month))
