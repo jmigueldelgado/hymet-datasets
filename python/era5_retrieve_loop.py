@@ -18,7 +18,6 @@ crs = {'init': 'epsg:4326'} #http://www.spatialreference.org/ref/epsg/2263/
 geo_df = GeoDataFrame(df_clean, crs=crs, geometry=geometry)
 bounds=geo_df.buffer(0.5).total_bounds
 
-
 #!/usr/bin/env python3
 import cdsapi
 
@@ -73,9 +72,10 @@ for year in range(first_year, last_year + 1):
                 '21:00', '22:00', '23:00',
             ],
             'area': [
-                bounds[2],bounds[1],bounds[0],bounds[3],
+                bounds[1],bounds[0],bounds[3],bounds[2],
             ],
             'format': 'netcdf',
         }
+bounds
 
         c.retrieve('reanalysis-era5-single-levels',request,"{year}-{month:02d}.nc".format(year=year, month=month))
