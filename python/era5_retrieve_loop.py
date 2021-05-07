@@ -25,7 +25,7 @@ import cdsapi
 
 c = cdsapi.Client()
 
-first_year = 1980
+first_year = 1979
 last_year = 2020
 # last_year = 2020
 
