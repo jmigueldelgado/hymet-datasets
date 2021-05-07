@@ -9,38 +9,34 @@ from functools import reduce
 import IPython
 import xarray as xr
 from urllib.request import urlopen
+from os import listdir
+from os import path
 
-# Get the csv with peak location
-df=pandas.read_csv('./data/peak_coordinates_revised3_WGS84.csv')
-df_clean=df[(df.LON>-361) & (df.LAT>-91)]
-geometry = [Point(xy) for xy in zip(df_clean.LON, df_clean.LAT)]
-crs = {'init': 'epsg:4326'} #http://www.spatialreference.org/ref/epsg/2263/
-geo_df = GeoDataFrame(df_clean, crs=crs, geometry=geometry)
+# # Get the csv with peak location
+# df=pandas.read_csv('./data/peak_coordinates_revised3_WGS84.csv')
+# df_clean=df[(df.LON>-361) & (df.LAT>-91)]
+# geometry = [Point(xy) for xy in zip(df_clean.LON, df_clean.LAT)]
+# crs = {'init': 'epsg:4326'} #http://www.spatialreference.org/ref/epsg/2263/
+# geo_df = GeoDataFrame(df_clean, crs=crs, geometry=geometry)
 
+ncarray=listdir('./data/nc')
 
-# dataDIR = './data/precipitation.nc'
-dataDIR = './data/1979-01.nc'
-DS = xr.open_dataset(dataDIR)
+def netcdf_open(ncpath):
+    DS = xr.open_dataset(ncpath)
+    return DS.assign(wind10m=(DS.u10**2+DS.v10**2)**0.5)
 
-# da=DS.u10.isel(latitude=10,longitude=10)
-DS
+def daily_mean(da):
+    return da.resample(time='1D').mean()
 
-da=DS.sel(latitude=geo_df['LAT'],longitude=geo_df['LON'],method='nearest')
-# da=da.sel(time=slice('2018-01-01T00:00:00','2018-01-03T00:00:00'))
-da
-# DS.time.dt.dayofweek
+def daily_max(da):
+    return da.groupby("time.day").max()
 
-daily_mean=da.groupby("time.day").mean()
-daily_max=da.groupby("time.day").max()
+def daily_min(da):
+    return da.groupby("time.day").min()
 
-xr.concat([daily_mean,daily_mean],'time')
+DSdailymean=list()
+for ncfile in ncarray:
+    DS=netcdf_open(path.join('data','nc',ncfile))
+    DSdailymean.append(daily_mean(DS))
 
-DSdaily=DS.groupby("time.day").mean()
-DSdaily.tp.sel(latitude=88.0,longitude=28.0,method='nearest').to_dataframe()
-
-df=DS.to_dataframe()
-
-df.head()
-df.groupby("time")
-df.index
-df.describe
+xr.concat(DSdailymean,'time').to_dataframe().to_csv('./data/out/daily_mean.csv')
