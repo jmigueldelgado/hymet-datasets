@@ -18,12 +18,11 @@ from os import path
 # crs = {'init': 'epsg:4326'} #http://www.spatialreference.org/ref/epsg/2263/
 # geo_df = GeoDataFrame(df_clean, crs=crs, geometry=geometry)
 
+DS
+
 ncdir=path.join(path.expanduser('~'),'proj','hymet-datasets','data','nc')
 ncarray=listdir(ncdir)
-<<<<<<< HEAD
 
-=======
->>>>>>> 6badf7918045db78edb75dd735c9f38c61566ef4
 def netcdf_open(ncpath):
     DS = xr.open_dataset(ncpath)
     return DS.assign(wind10m=(DS.u10**2+DS.v10**2)**0.5)
